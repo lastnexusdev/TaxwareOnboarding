@@ -1,0 +1,299 @@
+/* =========================
+   Global Base Styles
+   ========================= */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+h3 {
+    color: #7a3a2f;
+    border-bottom: 2px solid #9e4a3d;
+    padding-bottom: 10px;
+}
+
+/* =========================
+   PREMIUM TOP MENU (HEADER)
+   ========================= */
+
+/* =========================
+   FULL-WIDTH PREMIUM TOP MENU
+   ========================= */
+
+.top-menu {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    width: 100%;
+    margin: 0 0 30px 0;
+    padding: 16px 24px;
+
+    background: linear-gradient(135deg, #9e4a3d 0%, #7a3a2f 100%);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+
+    display: flex;
+    justify-content: center;
+}
+
+.top-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.top-menu ul li {
+    margin: 0;
+}
+
+/* Default button */
+.top-menu ul li a {
+    display: block;
+    padding: 10px 18px;
+
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    text-decoration: none;
+
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+/* Hover */
+.top-menu ul li a:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+}
+
+/* ACTIVE PAGE  the ONLY highlighted button */
+.top-menu ul li a.active {
+    background: #ffffff;
+    color: #7a3a2f;
+}
+
+/* LOGOUT  red, but NOT active */
+.top-menu ul li a[href*="logout"] {
+    background: #c0392b;
+    color: #fff;
+}
+
+.top-menu ul li a[href*="logout"]:hover {
+    background: #a93226;
+    transform: none;
+}
+
+/* =========================
+   Layout Containers
+   ========================= */
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+}
+
+.tech-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+/* =========================
+   Tech Boxes
+   ========================= */
+
+.tech-box {
+    background-color: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    margin: 20px;
+    flex: 1 1 calc(50% - 40px);
+    padding: 20px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tech-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* =========================
+   Tables
+   ========================= */
+
+.tech-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tech-table th,
+.tech-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.tech-table th {
+    background-color: #9e4a3d;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.tech-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.tech-table tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+/* =========================
+   Dual Column Sections
+   ========================= */
+
+.dual-column {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.client-info,
+.checklist {
+    flex: 1;
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+}
+
+.client-info h3,
+.checklist h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #9e4a3d;
+    padding-bottom: 10px;
+    color: #7a3a2f;
+}
+
+/* =========================
+   Forms & Inputs
+   ========================= */
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="submit"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+input[type="submit"] {
+    background: linear-gradient(135deg, #9e4a3d 0%, #7a3a2f 100%);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+input[type="submit"]:hover {
+    opacity: 0.9;
+}
+
+/* =========================
+   Progress Bar
+   ========================= */
+
+.progress-bar {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.progress-bar-inner {
+    height: 20px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    transition: width 0.3s ease;
+}
+
+/* =========================
+   Tooltips
+   ========================= */
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 220px;
+    background-color: #555;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -110px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* =========================
+   Upload Link
+   ========================= */
+
+.upload-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #9e4a3d 0%, #7a3a2f 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.upload-link:hover {
+    opacity: 0.9;
+}
