@@ -906,8 +906,8 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
                 success: function(response) {
                     if (response.success) {
                         $("#progress-bar-inner").css("width", response.progress + "%");
-                        $("#progress-bar-inner").text(response.progress.toFixed(2) + "%");
-                        $(".progress-percentage").text("Progress: " + response.progress.toFixed(2) + "%");
+                        $("#progress-bar-inner").text(Math.round(response.progress) + "%");
+                        $(".progress-percentage").text("Progress: " + Math.round(response.progress) + "%");
                     } else {
                         alert("Failed to update checklist. Please try again.");
                     }
@@ -962,22 +962,22 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
         <ul>
             <li><a href="dashboard.php">? Back to Dashboard</a></li>
         </ul>
-        <div>
-            <?php if ($client['Spanish'] == 'Yes'): ?>
-                <span class="badge badge-spanish">Spanish Speaker</span>
-            <?php endif; ?>
-            <?php if ($client['ConvertionNeeded'] == 'Yes'): ?>
-                <span class="badge badge-conversion">Conversion Needed</span>
-            <?php endif; ?>
-            <?php if ($client['BankEnrollment'] == 'Yes'): ?>
-                <span class="badge badge-bank">Bank Enrollment</span>
-            <?php endif; ?>
-        </div>
     </div>
 
     <div class="container">
         <div class="page-header">
             <h2>Onboarding Details for <?php echo htmlspecialchars($client['ClientName']); ?></h2>
+            <div style="margin-top: 8px;">
+                <?php if ($client['Spanish'] == 'Yes'): ?>
+                    <span class="badge badge-spanish">Spanish Speaker</span>
+                <?php endif; ?>
+                <?php if ($client['ConvertionNeeded'] == 'Yes'): ?>
+                    <span class="badge badge-conversion">Conversion Needed</span>
+                <?php endif; ?>
+                <?php if ($client['BankEnrollment'] == 'Yes'): ?>
+                    <span class="badge badge-bank">Bank Enrollment</span>
+                <?php endif; ?>
+            </div>
             <?php if ($is_other_tech && !$is_temporarily_unlocked): ?>
                 <form method="POST" action="" style="margin-top: 12px;">
                     <button type="submit" name="unlock_client" class="btn" onclick="return confirmUnlock();">
@@ -999,10 +999,10 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
             <h3 style="margin-top: 0; color: #8B4513;">Progress Overview</h3>
             <div class="progress-bar">
                 <div id="progress-bar-inner" class="progress-bar-inner" style="width: <?php echo $progress_percentage; ?>%;">
-                    <?php echo round($progress_percentage, 2); ?>%
+                    <?php echo (int) round($progress_percentage); ?>%
                 </div>
             </div>
-            <p class="progress-percentage">Progress: <?php echo round($progress_percentage, 2); ?>%</p>
+            <p class="progress-percentage">Progress: <?php echo (int) round($progress_percentage); ?>%</p>
         </div>
 
         <div class="dual-column">

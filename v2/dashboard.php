@@ -515,7 +515,7 @@ $stats = $stats_result->fetch_assoc();
                 <div class="number"><?php echo $stats['completed']; ?></div>
                 <div class="percentage">
                     <?php 
-                    $completed_percent = $stats['total_clients'] > 0 ? round(($stats['completed'] / $stats['total_clients']) * 100, 1) : 0;
+                    $completed_percent = $stats['total_clients'] > 0 ? round(($stats['completed'] / $stats['total_clients']) * 100) : 0;
                     echo $completed_percent . '% of total';
                     ?>
                 </div>
@@ -526,7 +526,7 @@ $stats = $stats_result->fetch_assoc();
                 <div class="number"><?php echo $stats['in_progress']; ?></div>
                 <div class="percentage">
                     <?php 
-                    $progress_percent = $stats['total_clients'] > 0 ? round(($stats['in_progress'] / $stats['total_clients']) * 100, 1) : 0;
+                    $progress_percent = $stats['total_clients'] > 0 ? round(($stats['in_progress'] / $stats['total_clients']) * 100) : 0;
                     echo $progress_percent . '% of total';
                     ?>
                 </div>
@@ -537,7 +537,7 @@ $stats = $stats_result->fetch_assoc();
                 <div class="number"><?php echo $stats['not_started']; ?></div>
                 <div class="percentage">
                     <?php 
-                    $not_started_percent = $stats['total_clients'] > 0 ? round(($stats['not_started'] / $stats['total_clients']) * 100, 1) : 0;
+                    $not_started_percent = $stats['total_clients'] > 0 ? round(($stats['not_started'] / $stats['total_clients']) * 100) : 0;
                     echo $not_started_percent . '% of total';
                     ?>
                 </div>
@@ -674,7 +674,7 @@ $stats = $stats_result->fetch_assoc();
                                                 <div class="mini-progress-bar">
                                                     <div class="mini-progress-fill" style="width: <?php echo round($client['Progress'], 2); ?>%"></div>
                                                 </div>
-                                                <span class="progress-text"><?php echo round($client['Progress'], 1); ?>%</span>
+                                                <span class="progress-text"><?php echo (int) round($client['Progress']); ?>%</span>
                                             </div>
                                         </td>
                                         <td>
