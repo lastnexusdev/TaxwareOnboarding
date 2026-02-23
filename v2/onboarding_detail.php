@@ -31,11 +31,42 @@ if (!$client) {
     exit;
 }
 
-// --- Assigned tech check ---
-$is_assigned_tech = $client['AssignedTech'] == $_SESSION['userid'];
+// --- Role and edit access checks ---
+$current_user_id = (int) ($_SESSION['userid'] ?? $_SESSION['user_id'] ?? 0);
+$is_assigned_tech = (string) $client['AssignedTech'] === (string) $current_user_id;
+$is_sales_rep = ($_SESSION['role'] ?? '') === 'sales' || (int) ($_SESSION['department'] ?? 0) === 1;
+$is_admin = ($_SESSION['role'] ?? '') === 'admin';
+$is_tech_user = (int) ($_SESSION['department'] ?? 0) === 2;
+$is_other_tech = $is_tech_user && !$is_assigned_tech;
+
+if (!isset($_SESSION['temp_unlocked_clients']) || !is_array($_SESSION['temp_unlocked_clients'])) {
+    $_SESSION['temp_unlocked_clients'] = [];
+}
+
+$is_temporarily_unlocked = !empty($_SESSION['temp_unlocked_clients'][$client_id]);
+$can_edit_client = $is_assigned_tech || $is_sales_rep || $is_admin || $is_temporarily_unlocked;
+
+// --- Handle temporary unlock for non-assigned techs ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlock_client']) && $is_other_tech) {
+    $_SESSION['temp_unlocked_clients'][$client_id] = true;
+
+    $unlock_note = sprintf('Client unlocked for temporary editing by Tech UserID %d (session only).', $current_user_id);
+    $history_sql = "INSERT INTO OnboardingHistory (ClientID, ActionType, ActionDetails, EditedBy) VALUES (?, 'Client Unlocked', ?, ?)";
+    $history_stmt = $conn->prepare($history_sql);
+    $history_stmt->bind_param("ssi", $client_id, $unlock_note, $current_user_id);
+    $history_stmt->execute();
+    $history_stmt->close();
+
+    header("Location: onboarding_detail.php?client_id=" . urlencode($client_id) . "&success=unlocked");
+    exit;
+}
+
+// Refresh unlock state in case it changed above
+$is_temporarily_unlocked = !empty($_SESSION['temp_unlocked_clients'][$client_id]);
+$can_edit_client = $is_assigned_tech || $is_sales_rep || $is_admin || $is_temporarily_unlocked;
 
 // --- Handle First Callout submission ---
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_first_callout']) && $is_assigned_tech) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_first_callout']) && $can_edit_client) {
     $first_callout = $_POST['FirstCallout'] ?? date('Y-m-d');
     
     // Check if details record exists
@@ -77,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_first_callout']
 }
 
 // --- Handle Follow Up Calls submission ---
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_follow_up_calls']) && $is_assigned_tech) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_follow_up_calls']) && $can_edit_client) {
     $follow_up_calls = trim($_POST['FollowUpCalls'] ?? '');
     
     // Check if details record exists
@@ -119,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_follow_up_calls
 }
 
 // --- Handle Notes submission ---
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notes']) && $is_assigned_tech) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notes']) && $can_edit_client) {
     $notes = trim($_POST['Notes'] ?? '');
     
     // Check if details record exists
@@ -161,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notes']) && $is
 }
 
 // --- Handle edit history submission ---
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_history']) && $is_assigned_tech) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_history']) && $can_edit_client) {
     $history_id = intval($_POST['history_id']);
     $new_details = trim($_POST['new_details']);
     
@@ -177,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_history']) && $is
 }
 
 // --- Handle folder creation for conversion files ---
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create_folder']) && $is_assigned_tech) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['create_folder']) && $can_edit_client) {
     $upload_token = bin2hex(random_bytes(16));
     
     // Update the upload token in database
@@ -216,6 +247,9 @@ if (isset($_GET['success'])) {
             break;
         case 'folder':
             $folder_message = "Upload folder created successfully!";
+            break;
+        case 'unlocked':
+            $folder_message = "Client unlocked for editing in this session.";
             break;
     }
 }
@@ -865,6 +899,10 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
             document.getElementById("editModal").style.display = "none";
         }
 
+        function confirmUnlock() {
+            return confirm('Are you sure you want to unlock this client for editing?');
+        }
+
         function updateChecklist(item) {
             $.ajax({
                 url: 'update_checklist.php',
@@ -949,6 +987,17 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
     <div class="container">
         <div class="page-header">
             <h2>Onboarding Details for <?php echo htmlspecialchars($client['ClientName']); ?></h2>
+            <?php if ($is_other_tech && !$is_temporarily_unlocked): ?>
+                <form method="POST" action="" style="margin-top: 12px;">
+                    <button type="submit" name="unlock_client" class="btn" onclick="return confirmUnlock();">
+                        Unlock Client For Editing
+                    </button>
+                </form>
+            <?php elseif ($is_temporarily_unlocked): ?>
+                <p style="margin-top: 10px; color: #155724; font-weight: bold;">
+                    This client is unlocked for your current session. You can edit until logout.
+                </p>
+            <?php endif; ?>
         </div>
 
         <?php if (isset($folder_message) && $folder_message): ?>
@@ -1033,8 +1082,8 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
                     <form method="POST" action="">
                         <div class="form-group">
                             <label for="FirstCallout">First Callout</label>
-                            <input type="date" id="FirstCallout" name="FirstCallout" value="<?php echo isset($details['FirstCallout']) ? htmlspecialchars($details['FirstCallout']) : date('Y-m-d'); ?>" <?php echo isset($details['FirstCallout']) ? 'disabled' : ''; ?> <?php echo $is_assigned_tech ? '' : 'disabled'; ?>>
-                            <?php if (!isset($details['FirstCallout']) && $is_assigned_tech): ?>
+                            <input type="date" id="FirstCallout" name="FirstCallout" value="<?php echo isset($details['FirstCallout']) ? htmlspecialchars($details['FirstCallout']) : date('Y-m-d'); ?>" <?php echo isset($details['FirstCallout']) ? 'disabled' : ''; ?> <?php echo $can_edit_client ? '' : 'disabled'; ?>>
+                            <?php if (!isset($details['FirstCallout']) && $can_edit_client): ?>
                                 <input type="submit" name="update_first_callout" value="Submit">
                             <?php endif; ?>
                         </div>
@@ -1043,8 +1092,8 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
                     <form method="POST" action="">
                         <div class="form-group">
                             <label for="FollowUpCalls">Follow Up Calls</label>
-                            <textarea id="FollowUpCalls" name="FollowUpCalls" <?php echo $is_assigned_tech ? '' : 'disabled'; ?>><?php echo htmlspecialchars($details['FollowUpCalls'] ?? ''); ?></textarea>
-                            <?php if ($is_assigned_tech): ?>
+                            <textarea id="FollowUpCalls" name="FollowUpCalls" <?php echo $can_edit_client ? '' : 'disabled'; ?>><?php echo htmlspecialchars($details['FollowUpCalls'] ?? ''); ?></textarea>
+                            <?php if ($can_edit_client): ?>
                                 <input type="submit" name="update_follow_up_calls" value="Submit">
                             <?php endif; ?>
                         </div>
@@ -1053,15 +1102,15 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
                     <form method="POST" action="">
                         <div class="form-group">
                             <label for="Notes">Notes</label>
-                            <textarea id="Notes" name="Notes" <?php echo $is_assigned_tech ? '' : 'disabled'; ?>><?php echo htmlspecialchars($details['Notes'] ?? ''); ?></textarea>
-                            <?php if ($is_assigned_tech): ?>
+                            <textarea id="Notes" name="Notes" <?php echo $can_edit_client ? '' : 'disabled'; ?>><?php echo htmlspecialchars($details['Notes'] ?? ''); ?></textarea>
+                            <?php if ($can_edit_client): ?>
                                 <input type="submit" name="update_notes" value="Save">
                             <?php endif; ?>
                         </div>
                     </form>
                 </div>
 
-                <?php if ($client['ConvertionNeeded'] === 'Yes' && $is_assigned_tech): ?>
+                <?php if ($client['ConvertionNeeded'] === 'Yes' && $can_edit_client): ?>
                     <?php if (empty($upload_token)): ?>
                         <div style="margin-top: 20px;">
                             <form method="POST" action="">
@@ -1099,7 +1148,7 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
                                     <input type="checkbox" 
                                            name="<?php echo htmlspecialchars($item); ?>" 
                                            <?php echo $client[$item] ? 'checked' : ''; ?> 
-                                           <?php echo $is_assigned_tech ? '' : 'disabled'; ?> 
+                                           <?php echo $can_edit_client ? '' : 'disabled'; ?> 
                                            onchange="updateChecklist(this)">
                                     <span><?php echo htmlspecialchars($description); ?></span>
                                 </li>
@@ -1125,7 +1174,7 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
                         <?php while ($history = $history_result->fetch_assoc()): ?>
                             <tr class="<?php echo $history['ActionType'] === 'First Callout' ? 'first-callout' : ''; ?>">
                                 <td style="word-wrap: break-word; white-space: normal;">
-                                    <?php if ($history['ActionType'] !== 'First Callout' && $is_assigned_tech): ?>
+                                    <?php if ($history['ActionType'] !== 'First Callout' && $can_edit_client): ?>
                                         <button type="button" onclick="openModal(<?php echo $history['HistoryID']; ?>, '<?php echo htmlspecialchars($history['ActionDetails'], ENT_QUOTES); ?>')">Edit</button>
                                     <?php endif; ?>
                                 </td>
@@ -1148,6 +1197,12 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
                 </tbody>
             </table>
         </div>
+
+        <?php if ($is_temporarily_unlocked): ?>
+            <p style="margin-top: 12px; color: #6c757d; font-style: italic;">
+                Note: Temporary unlock is active for this browser session and will end when you log out or close the page.
+            </p>
+        <?php endif; ?>
 
         <!-- Edit Modal -->
         <div id="editModal" class="modal">

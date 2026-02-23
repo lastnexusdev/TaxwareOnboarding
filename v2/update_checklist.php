@@ -71,6 +71,25 @@ $client_result = $stmt->get_result();
 $client = $client_result->fetch_assoc();
 $stmt->close();
 
+if (!$client) {
+    error_log("Client not found for checklist update. client_id={$client_id}");
+    echo json_encode(['success' => false, 'error' => 'Client not found.']);
+    exit;
+}
+
+$current_user_id = (int) ($_SESSION['userid'] ?? $_SESSION['user_id'] ?? 0);
+$is_assigned_tech = (string) $client['AssignedTech'] === (string) $current_user_id;
+$is_sales_rep = ($_SESSION['role'] ?? '') === 'sales' || (int) ($_SESSION['department'] ?? 0) === 1;
+$is_admin = ($_SESSION['role'] ?? '') === 'admin';
+$is_temporarily_unlocked = !empty($_SESSION['temp_unlocked_clients'][$client_id]);
+$can_edit_client = $is_assigned_tech || $is_sales_rep || $is_admin || $is_temporarily_unlocked;
+
+if (!$can_edit_client) {
+    error_log("Access denied: checklist edit blocked for user {$current_user_id} on client {$client_id}");
+    echo json_encode(['success' => false, 'error' => 'Access denied.']);
+    exit;
+}
+
 if ($client['ConvertionNeeded'] === 'Yes') {
     $checklist_items['Client Data Conversion'] = array_merge($checklist_items['Client Data Conversion'], ['VerifyPlanData', 'ExecuteConversion', 'VerifyIntegrity', 'TransferSetupData']);
 }
