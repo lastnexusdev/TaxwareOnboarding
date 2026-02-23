@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
 
     // If not custom package, check standard packages
     if (!$is_custom_package) {
-        if ($package === 'Custom Package' && isset($_POST['custom_programs'])) {
+        if ($package === 'Custom Package' && !empty($_POST['custom_programs']) && is_array($_POST['custom_programs'])) {
             foreach ($_POST['custom_programs'] as $program) {
                 if (isset($entitled_programs[$program])) {
                     $entitled_programs[$program] = 1;
@@ -180,7 +180,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
         }
     }
 
+    if ($package === 'Custom Package' && array_sum($entitled_programs) === 0) {
+        $error_message = "Please select at least one program for a one-time custom package.";
+    }
+
     // Insert client into Onboarding
+    if (empty($error_message)) {
     $sql = "INSERT INTO Onboarding 
         (DateAdded, ClientID, ClientName, AssignedTech, SalesRep, Email, PhoneNumber, PreviousSoftware, ConvertionNeeded, Spanish, BankEnrollment, Package, ReadyToCall, UploadToken) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -254,6 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
         $error_message = "Error inserting client: " . $conn->error;
     }
     $stmt->close();
+    }
 }
 
 // Check for success message from redirect
@@ -614,6 +620,25 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
         function closeModal() {
             document.getElementById('other_software_modal').style.display = 'none';
             document.getElementById('custom_package_modal').style.display = 'none';
+            syncCustomPackageSelections();
+        }
+
+        function syncCustomPackageSelections() {
+            var hiddenContainer = document.getElementById('custom_programs_hidden_container');
+            if (!hiddenContainer) {
+                return;
+            }
+
+            hiddenContainer.innerHTML = '';
+
+            var checkedPrograms = document.querySelectorAll('#custom_package_modal input[name="custom_programs[]"]:checked');
+            checkedPrograms.forEach(function(checkbox) {
+                var hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'custom_programs[]';
+                hiddenInput.value = checkbox.value;
+                hiddenContainer.appendChild(hiddenInput);
+            });
         }
 
         function confirmConversionChange() {
@@ -691,7 +716,34 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
             } else {
                 document.getElementById('custom_package_modal').style.display = 'none';
             }
+
+            syncCustomPackageSelections();
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var addClientForm = document.querySelector('form[method="POST"]');
+            var packageSelect = document.getElementById('package');
+
+            var customProgramCheckboxes = document.querySelectorAll('#custom_package_modal input[name="custom_programs[]"]');
+            customProgramCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', syncCustomPackageSelections);
+            });
+
+            if (addClientForm) {
+                addClientForm.addEventListener('submit', function(event) {
+                    syncCustomPackageSelections();
+
+                    if (packageSelect && packageSelect.value === 'Custom Package') {
+                        var selectedCount = document.querySelectorAll('#custom_package_modal input[name="custom_programs[]"]:checked').length;
+                        if (selectedCount === 0) {
+                            event.preventDefault();
+                            alert('Please select at least one program for the one-time custom package.');
+                            document.getElementById('custom_package_modal').style.display = 'block';
+                        }
+                    }
+                });
+            }
+        });
 
         // Close modal when clicking outside
         window.onclick = function(event) {
@@ -871,6 +923,8 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                     <label for="notes">Notes</label>
                     <textarea id="notes" name="notes" placeholder="Add any relevant notes about this client..."></textarea>
                 </div>
+
+                <div id="custom_programs_hidden_container"></div>
 
                 <button type="submit" name="add_client" class="btn-submit">Add Client</button>
             </form>
