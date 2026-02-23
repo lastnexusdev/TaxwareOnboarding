@@ -40,9 +40,7 @@ $checklist_items = [
     'Testing' => [
         'RunSoftware', 'ProvideWalkthrough', 'DemonstrateTasks'
     ],
-    'Client Data Conversion' => [
-        'VerifyPlanData', 'ExecuteConversion', 'VerifyIntegrity', 'TransferSetupData'
-    ],
+    'Client Data Conversion' => [],
     'Final Steps' => [
         'ContactSupport', 'OfferResources', 'ProvideTrainingInfo', 'ScheduleFollowUp'
     ]
@@ -91,7 +89,7 @@ if (!$can_edit_client) {
 }
 
 if ($client['ConvertionNeeded'] === 'Yes') {
-    $checklist_items['Client Data Conversion'] = array_merge($checklist_items['Client Data Conversion'], ['VerifyPlanData', 'ExecuteConversion', 'VerifyIntegrity', 'TransferSetupData']);
+    $checklist_items['Client Data Conversion'] = ['VerifyPlanData', 'ExecuteConversion', 'VerifyIntegrity', 'TransferSetupData'];
 }
 
 if ($client['BankEnrollment'] === 'Yes') {
@@ -155,10 +153,6 @@ foreach ($checklist_items as $section => $section_items) {
         }
     }
 }
-
-$progress_percentage = $total_items > 0 ? round(($completed_items / $total_items) * 100, 2) : 0.00;
-error_log("Calculated progress_percentage: $progress_percentage for client_id: $client_id"); // Log the progress value
-
 
 $progress_percentage = $total_items > 0 ? round(($completed_items / $total_items) * 100, 2) : 0.00;
 error_log("Calculated progress_percentage: $progress_percentage for client_id: $client_id"); // Log the progress value

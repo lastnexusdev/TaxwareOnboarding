@@ -386,18 +386,9 @@ if ($upload_token) {
     }
 }
 
-// --- Progress calculation ---
-$total_items = 0;
-$completed_items = 0;
-foreach ($checklist_items as $section_items) {
-    $total_items += count($section_items);
-    foreach ($section_items as $item => $description) {
-        if (!empty($client[$item])) {
-            $completed_items++;
-        }
-    }
-}
-$progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 100 : 0;
+// --- Progress value ---
+// Use stored progress from DB to keep this page consistent with dashboard/list views.
+$progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] : 0.0;
 ?>
 
 <!DOCTYPE html>
