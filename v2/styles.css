@@ -103,9 +103,9 @@ h3 {
    ========================= */
 
 .container {
-    width: 80%;
+    width: min(96%, 1800px);
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 16px;
     background-color: #fff;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
     border-radius: 10px;
@@ -114,7 +114,8 @@ h3 {
 .tech-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 /* =========================
@@ -124,8 +125,8 @@ h3 {
 .tech-box {
     background-color: #fff;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    margin: 20px;
-    flex: 1 1 calc(50% - 40px);
+    margin: 8px 0;
+    flex: 1 1 calc(50% - 6px);
     padding: 20px;
     border-radius: 12px;
     box-sizing: border-box;
