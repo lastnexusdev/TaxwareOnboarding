@@ -253,13 +253,6 @@ $stats = $stats_result->fetch_assoc();
     <div class="dashboard-container">
         <h2>Tech Dashboard</h2>
 
-        <div class="dashboard-search-bar">
-            <input type="text" id="clientSearchInput" placeholder="Search Client ID (progressive)">
-            <button type="button" class="btn" onclick="searchClientById()">Search ID</button>
-            <button type="button" class="btn" onclick="nextSearchResult()">Next Match</button>
-            <span id="clientSearchStatus" class="search-status">Enter a Client ID to search.</span>
-        </div>
-
         <!-- Stats Overview -->
         <div class="stats-overview">
             <div class="stat-card total">
@@ -341,6 +334,13 @@ $stats = $stats_result->fetch_assoc();
                 </div>
 
             </div>
+        </div>
+
+        <div class="dashboard-search-bar">
+            <input type="text" id="clientSearchInput" placeholder="Search Client ID (progressive)">
+            <button type="button" class="btn" onclick="searchClientById()">Search ID</button>
+            <button type="button" class="btn" onclick="nextSearchResult()">Next Match</button>
+            <span id="clientSearchStatus" class="search-status">Enter a Client ID to search.</span>
         </div>
 
         <!-- Tech Container -->
