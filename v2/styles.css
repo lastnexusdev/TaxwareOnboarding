@@ -652,6 +652,26 @@ body.page-dashboard{
         font-weight: 700;
     }
 
+    body.page-dashboard .dashboard-search-bar{
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 0 0 18px 0;
+    }
+
+    body.page-dashboard .dashboard-search-bar input{
+        min-width: 260px;
+        padding: 10px 12px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+    }
+
+    body.page-dashboard .dashboard-search-bar .search-status{
+        color: #555;
+        font-size: 13px;
+    }
+
     /* Stats Overview Cards */
     body.page-dashboard .stats-overview{
         display: grid;
@@ -894,6 +914,12 @@ body.page-dashboard{
 
     body.page-dashboard .tech-table tbody tr:hover{
         background-color: #f8f9fa;
+    }
+
+    body.page-dashboard .tech-table tbody tr.client-search-hit{
+        outline: 3px solid #9e4a3d;
+        outline-offset: -3px;
+        box-shadow: inset 0 0 0 9999px rgba(158, 74, 61, 0.16);
     }
 
     /* Row Colors */

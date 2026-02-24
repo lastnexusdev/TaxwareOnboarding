@@ -76,6 +76,36 @@ $stats = $stats_result->fetch_assoc();
     <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
 <script>
+        const DASHBOARD_COLLAPSE_KEY = 'v2_dashboard_collapsed_techs';
+
+        function getCollapsedTechs() {
+            try {
+                const raw = localStorage.getItem(DASHBOARD_COLLAPSE_KEY);
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveCollapsedTechs(map) {
+            localStorage.setItem(DASHBOARD_COLLAPSE_KEY, JSON.stringify(map || {}));
+        }
+
+        function applyCollapsedState() {
+            const collapsedMap = getCollapsedTechs();
+            document.querySelectorAll('.tech-box[data-tech-id]').forEach((techBox) => {
+                const techId = techBox.getAttribute('data-tech-id');
+                const isCollapsed = !!collapsedMap[techId];
+                const toggle = techBox.querySelector('.tech-name-toggle');
+                techBox.classList.toggle('collapsed', isCollapsed);
+                if (toggle) {
+                    toggle.setAttribute('aria-expanded', (!isCollapsed).toString());
+                    toggle.setAttribute('title', isCollapsed ? 'Expand clients' : 'Collapse clients');
+                }
+            });
+        }
+
         function goToDetail(clientId) {
             window.location.href = 'onboarding_detail.php?client_id=' + clientId;
         }
@@ -84,10 +114,78 @@ $stats = $stats_result->fetch_assoc();
             const techBox = button.closest('.tech-box');
             if (!techBox) return;
 
+            const techId = techBox.getAttribute('data-tech-id');
             const isCollapsed = techBox.classList.toggle('collapsed');
             button.setAttribute('aria-expanded', (!isCollapsed).toString());
             button.setAttribute('title', isCollapsed ? 'Expand clients' : 'Collapse clients');
+
+            const collapsedMap = getCollapsedTechs();
+            if (techId) {
+                if (isCollapsed) {
+                    collapsedMap[techId] = true;
+                } else {
+                    delete collapsedMap[techId];
+                }
+                saveCollapsedTechs(collapsedMap);
+            }
         }
+
+        function searchClientById() {
+            const input = document.getElementById('clientSearchInput');
+            const query = (input ? input.value : '').trim().toLowerCase();
+            const status = document.getElementById('clientSearchStatus');
+
+            document.querySelectorAll('.tech-table tbody tr.client-row').forEach((row) => {
+                row.classList.remove('client-search-hit');
+            });
+
+            if (!query) {
+                if (status) status.textContent = 'Enter a Client ID to search.';
+                return;
+            }
+
+            const allRows = Array.from(document.querySelectorAll('.tech-table tbody tr.client-row'));
+            const match = allRows.find((row) => (row.getAttribute('data-client-id') || '').toLowerCase() === query);
+
+            if (!match) {
+                if (status) status.textContent = 'No client found for ID: ' + query;
+                return;
+            }
+
+            const techBox = match.closest('.tech-box');
+            if (techBox) {
+                techBox.classList.remove('collapsed');
+                const btn = techBox.querySelector('.tech-name-toggle');
+                if (btn) {
+                    btn.setAttribute('aria-expanded', 'true');
+                    btn.setAttribute('title', 'Collapse clients');
+                }
+                const techId = techBox.getAttribute('data-tech-id');
+                const collapsedMap = getCollapsedTechs();
+                if (techId && collapsedMap[techId]) {
+                    delete collapsedMap[techId];
+                    saveCollapsedTechs(collapsedMap);
+                }
+            }
+
+            match.classList.add('client-search-hit');
+            match.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (status) status.textContent = 'Found Client ID: ' + match.getAttribute('data-client-id');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applyCollapsedState();
+
+            const input = document.getElementById('clientSearchInput');
+            if (input) {
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchClientById();
+                    }
+                });
+            }
+        });
     </script>
 </head>
 
@@ -97,6 +195,12 @@ $stats = $stats_result->fetch_assoc();
 
     <div class="dashboard-container">
         <h2>Tech Dashboard</h2>
+
+        <div class="dashboard-search-bar">
+            <input type="text" id="clientSearchInput" placeholder="Search Client ID (exact match)">
+            <button type="button" class="btn" onclick="searchClientById()">Search ID</button>
+            <span id="clientSearchStatus" class="search-status">Enter a Client ID to search.</span>
+        </div>
 
         <!-- Stats Overview -->
         <div class="stats-overview">
@@ -204,7 +308,7 @@ $stats = $stats_result->fetch_assoc();
                     }
                 }
                 ?>
-                <div class="tech-box">
+                <div class="tech-box" data-tech-id="<?php echo (int) $tech['UserID']; ?>">
                     <div class="tech-header">
                         <h3>
                             <button type="button" class="tech-name-toggle" aria-expanded="true" title="Collapse clients" onclick="toggleTechClients(this)">
@@ -267,7 +371,7 @@ $stats = $stats_result->fetch_assoc();
                                         log_message("Updated RowColor for ClientID " . $client['ClientID'] . " to " . $row_color);
                                     }
                                     ?>
-                                    <tr style="background-color: <?php echo htmlspecialchars($row_color); ?>" onclick="goToDetail('<?php echo htmlspecialchars($client['ClientID']); ?>')">
+                                    <tr class="client-row" data-client-id="<?php echo htmlspecialchars($client['ClientID']); ?>" style="background-color: <?php echo htmlspecialchars($row_color); ?>" onclick="goToDetail('<?php echo htmlspecialchars($client['ClientID']); ?>')">
                                         <td><strong><?php echo htmlspecialchars($client['ClientID']); ?></strong></td>
                                         <td><?php echo htmlspecialchars($client['ClientName']); ?></td>
                                         <td><?php echo htmlspecialchars($client['PhoneNumber']); ?></td>
