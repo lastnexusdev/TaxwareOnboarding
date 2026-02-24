@@ -1508,8 +1508,8 @@ body.page-sales{
 
         body.page-sales .add-client-section h3{
             margin-top: 0;
-            color: #007BFF;
-            border-bottom: 2px solid #007BFF;
+            color: #9e4a3d;
+            border-bottom: 2px solid #9e4a3d;
             padding-bottom: 10px;
             margin-bottom: 25px;
             font-size: 24px;
@@ -1535,9 +1535,9 @@ body.page-sales{
         }
 
         body.page-sales .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="date"],
-        .form-group select{
+        body.page-sales .form-group input[type="email"],
+        body.page-sales .form-group input[type="date"],
+        body.page-sales .form-group select{
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
@@ -1546,10 +1546,10 @@ body.page-sales{
         }
 
         body.page-sales .form-group input:focus,
-        .form-group select:focus{
+        body.page-sales .form-group select:focus{
             outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+            border-color: #9e4a3d;
+            box-shadow: 0 0 0 3px rgba(158, 74, 61, 0.15);
         }
 
         body.page-sales .form-group small{
@@ -1595,12 +1595,12 @@ body.page-sales{
 
         body.page-sales textarea:focus{
             outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+            border-color: #9e4a3d;
+            box-shadow: 0 0 0 3px rgba(158, 74, 61, 0.15);
         }
 
         body.page-sales .btn-submit{
-            background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+            background: linear-gradient(135deg, #9e4a3d 0%, #7a3a2f 100%);
             color: white;
             padding: 14px 30px;
             border: none;
@@ -1609,13 +1609,13 @@ body.page-sales{
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            box-shadow: 0 4px 10px rgba(122, 58, 47, 0.25);
             margin-top: 20px;
         }
 
         body.page-sales .btn-submit:hover{
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 6px 15px rgba(122, 58, 47, 0.35);
         }
 
         body.page-sales .modal{
@@ -1644,7 +1644,7 @@ body.page-sales{
             margin-top: 0;
             color: #333;
             font-size: 22px;
-            border-bottom: 2px solid #007BFF;
+            border-bottom: 2px solid #9e4a3d;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
@@ -1702,7 +1702,7 @@ body.page-sales{
         }
 
         body.page-sales .modal button{
-            background-color: #007BFF;
+            background-color: #9e4a3d;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -1712,7 +1712,7 @@ body.page-sales{
         }
 
         body.page-sales .modal button:hover{
-            background-color: #0056b3;
+            background-color: #7a3a2f;
         }
 
         body.page-sales .success-message{
@@ -1746,7 +1746,7 @@ body.page-sales{
             background: linear-gradient(135deg, #f8ece9 0%, #f2ddd6 100%);
             padding: 15px;
             border-radius: 6px;
-            border-left: 4px solid #007BFF;
+            border-left: 4px solid #9e4a3d;
             margin-bottom: 20px;
         }
 
@@ -1758,7 +1758,7 @@ body.page-sales{
 
         body.page-sales .package-badge{
             display: inline-block;
-            background-color: #007BFF;
+            background-color: #9e4a3d;
             color: white;
             padding: 4px 10px;
             border-radius: 12px;
@@ -2628,8 +2628,8 @@ body.page-users .user-management-container{
         
         body.page-users .add-user-section h3{
             margin-top: 0;
-            color: #007BFF;
-            border-bottom: 2px solid #007BFF;
+            color: #9e4a3d;
+            border-bottom: 2px solid #9e4a3d;
             padding-bottom: 10px;
         }
         
@@ -2692,8 +2692,8 @@ body.page-users .user-management-container{
         
         body.page-users .users-table-section h3{
             margin-top: 0;
-            color: #007BFF;
-            border-bottom: 2px solid #007BFF;
+            color: #9e4a3d;
+            border-bottom: 2px solid #9e4a3d;
             padding-bottom: 10px;
         }
         
@@ -2710,7 +2710,7 @@ body.page-users .user-management-container{
         }
         
         body.page-users .users-table th{
-            background-color: #007BFF;
+            background-color: #9e4a3d;
             color: white;
             font-weight: bold;
         }
@@ -2753,14 +2753,14 @@ body.page-users .user-management-container{
         }
         
         body.page-users .btn-primary{
-            background-color: #007BFF;
+            background-color: #9e4a3d;
             color: white;
             padding: 10px 20px;
             font-size: 16px;
         }
         
         body.page-users .btn-primary:hover{
-            background-color: #0056b3;
+            background-color: #7a3a2f;
         }
         
         body.page-users .btn-secondary{
@@ -2832,7 +2832,7 @@ body.page-users .user-management-container{
         }
         
         body.page-users .dept-1{
-            background-color: #e3f2fd;
+            background-color: #f8ece9;
         }
         
         body.page-users .dept-2{
@@ -2932,7 +2932,7 @@ body.page-remove-client{
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
-            border-left: 4px solid #007BFF;
+            border-left: 4px solid #9e4a3d;
         }
 
         body.page-remove-client .stat-card.total{
@@ -3041,8 +3041,8 @@ body.page-remove-client{
 
         body.page-remove-client .search-box input:focus{
             outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+            border-color: #9e4a3d;
+            box-shadow: 0 0 0 3px rgba(158, 74, 61, 0.15);
         }
 
         body.page-remove-client .table-actions{
@@ -3053,9 +3053,9 @@ body.page-remove-client{
 
         body.page-remove-client .btn-select-all, body.page-remove-client .btn-deselect-all{
             padding: 10px 20px;
-            border: 1px solid #007BFF;
+            border: 1px solid #9e4a3d;
             background-color: white;
-            color: #007BFF;
+            color: #9e4a3d;
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
@@ -3063,14 +3063,14 @@ body.page-remove-client{
         }
 
         body.page-remove-client .btn-select-all:hover,
-        .btn-deselect-all:hover{
-            background-color: #007BFF;
+        body.page-remove-client .btn-deselect-all:hover{
+            background-color: #9e4a3d;
             color: white;
         }
 
         body.page-remove-client .selected-count{
             padding: 10px 15px;
-            background-color: #e3f2fd;
+            background-color: #f8ece9;
             color: #7a3a2f;
             border-radius: 6px;
             font-weight: 600;
@@ -3085,7 +3085,7 @@ body.page-remove-client{
         }
 
         body.page-remove-client .clients-table thead{
-            background-color: #dc3545;
+            background-color: #9e4a3d;
             color: white;
         }
 
@@ -3100,21 +3100,21 @@ body.page-remove-client{
         }
 
         body.page-remove-client .clients-table th:hover{
-            background-color: #c82333;
+            background-color: #7a3a2f;
         }
 
         body.page-remove-client .clients-table th.sortable::after{
-            content: " ?";
+            content: " ⇅";
             opacity: 0.5;
         }
 
         body.page-remove-client .clients-table th.sort-asc::after{
-            content: " ?";
+            content: " ↑";
             opacity: 1;
         }
 
         body.page-remove-client .clients-table th.sort-desc::after{
-            content: " ?";
+            content: " ↓";
             opacity: 1;
         }
 

@@ -248,7 +248,7 @@ while ($client = $clients_result->fetch_assoc()) {
                     <!-- Table Controls -->
                     <div class="table-controls">
                         <div class="search-box">
-                            <input type="text" id="searchInput" placeholder="?? Search by client name, ID, sales rep...">
+                            <input type="text" id="searchInput" placeholder="Search by client name, ID, sales rep...">
                         </div>
                         <div class="table-actions">
                             <span class="selected-count" id="selectedCount">0 selected</span>
@@ -315,7 +315,7 @@ while ($client = $clients_result->fetch_assoc()) {
                     </table>
 
                     <button type="submit" name="delete_clients" id="deleteBtn" class="btn-delete" disabled>
-                        ??? Delete Selected Clients
+                        Delete Selected Clients
                     </button>
                 </form>
             <?php else: ?>
