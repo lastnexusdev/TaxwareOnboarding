@@ -438,6 +438,9 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
             text-decoration: none;
             border-radius: 4px;
             transition: background-color 0.3s;
+            min-height: 42px;
+            box-sizing: border-box;
+            margin: 0;
         }
 
         .top-menu ul li a:hover {
@@ -657,6 +660,9 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.3s;
+            min-height: 42px;
+            box-sizing: border-box;
+            margin: 0;
         }
 
         .form-group input[type="submit"]:hover,
@@ -678,7 +684,9 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
         }
 
         .upload-link {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 10px 20px;
             background-color: #8B4513;
             color: white;
@@ -688,6 +696,9 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
             font-size: 14px;
             line-height: 1.5;
             border: none;
+            min-height: 42px;
+            box-sizing: border-box;
+            margin: 0;
         }
 
         .upload-link:hover {
@@ -695,6 +706,9 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
         }
 
         .copy-upload-link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background-color: #6c757d;
             color: white;
             border: none;
@@ -704,6 +718,9 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
             font-size: 14px;
             line-height: 1.5;
             transition: background-color 0.3s;
+            min-height: 42px;
+            box-sizing: border-box;
+            margin: 0;
         }
 
         .copy-upload-link-btn:hover {
