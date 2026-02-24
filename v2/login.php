@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <title>Login - Taxware Systems</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="page-login">
     <!-- Header Bar -->
     <div class="header-bar">
         <img src="https://kb.taxwaresystems.com/logo.png" alt="Taxware Systems">

@@ -102,7 +102,7 @@ if (!empty($client_id)) {
 <head>
     <title>History Manager</title>
 </head>
-<body>
+<body class="page-history">
     <div class="container">
         <h2>?? Client History Manager</h2>
         

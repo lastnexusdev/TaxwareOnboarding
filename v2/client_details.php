@@ -30,7 +30,7 @@ if (!$client) {
     <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
-<body>
+<body class="page-client-details">
     <div class="container">
         <h2>Onboarding Details for <?php echo htmlspecialchars($client['ClientName']); ?></h2>
         <div class="checklist">

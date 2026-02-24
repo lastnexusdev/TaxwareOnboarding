@@ -169,7 +169,7 @@ $max_post = ini_get('post_max_size');
     <title>File Upload Portal - Taxware Systems</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
+<body class="page-upload">
     <div class="header">
         <div class="header-content">
             <img src="https://kb.taxwaresystems.com/logo.png" alt="Taxware Systems Inc" class="logo">

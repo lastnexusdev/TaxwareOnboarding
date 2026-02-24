@@ -82,7 +82,7 @@ $stats = $stats_result->fetch_assoc();
     </script>
 </head>
 
-<body>
+<body class="page-dashboard">
 
 <?php include 'includes/header.php'; ?>
 

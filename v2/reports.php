@@ -190,7 +190,7 @@ $conn->close();
         };
     </script>
 </head>
-<body>
+<body class="page-reports">
 <?php include 'includes/header.php'; ?>    
     <div class="container">
         <h2>Analytics & Reports</h2>

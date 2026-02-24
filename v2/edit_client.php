@@ -244,7 +244,7 @@ if ($clients_result) {
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
+<body class="page-edit-client">
 <?php include 'includes/header.php'; ?>
     <div class="edit-container">
         <h2>Edit Clients</h2>

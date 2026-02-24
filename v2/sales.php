@@ -470,7 +470,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
         }
     </script>
 </head>
-<body>
+<body class="page-sales">
 <?php include 'includes/header.php'; ?>
     <div class="sales-container">
         <h2>Add New Client</h2>

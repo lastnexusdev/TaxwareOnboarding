@@ -186,7 +186,7 @@ while ($client = $clients_result->fetch_assoc()) {
         });
     </script>
 </head>
-<body>
+<body class="page-remove-client">
 <?php include 'includes/header.php'; ?>
     <div class="remove-container">
         <h2>Remove Clients</h2>

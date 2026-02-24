@@ -132,7 +132,7 @@ $users_result = $conn->query($users_sql);
     <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
-<body>
+<body class="page-users">
 <?php include 'includes/header.php'; ?>
     <div class="user-management-container">
         <h2>User Management</h2>

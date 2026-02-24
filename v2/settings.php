@@ -282,7 +282,7 @@ $conn->close();
         }
     </script>
 </head>
-<body>
+<body class="page-settings">
 <?php include 'includes/header.php'; ?>
     <div class="settings-container">
         <h2>System Settings</h2>
