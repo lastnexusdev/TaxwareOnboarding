@@ -133,9 +133,9 @@ $stats = $stats_result->fetch_assoc();
         let currentSearchResults = [];
         let currentSearchIndex = -1;
 
-        function clearSearchHighlights() {
+        function clearSearchFilter() {
             document.querySelectorAll('.tech-table tbody tr.client-row').forEach((row) => {
-                row.classList.remove('client-search-hit', 'client-search-active');
+                row.classList.remove('client-search-hidden');
             });
         }
 
@@ -162,10 +162,8 @@ $stats = $stats_result->fetch_assoc();
             currentSearchIndex = (index + currentSearchResults.length) % currentSearchResults.length;
             const status = document.getElementById('clientSearchStatus');
 
-            currentSearchResults.forEach((row) => row.classList.remove('client-search-active'));
             const active = currentSearchResults[currentSearchIndex];
             revealMatchRow(active);
-            active.classList.add('client-search-active');
             active.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             if (status) {
@@ -178,16 +176,16 @@ $stats = $stats_result->fetch_assoc();
             const query = (input ? input.value : '').trim().toLowerCase();
             const status = document.getElementById('clientSearchStatus');
 
-            clearSearchHighlights();
+            clearSearchFilter();
             currentSearchResults = [];
             currentSearchIndex = -1;
+
+            const allRows = Array.from(document.querySelectorAll('.tech-table tbody tr.client-row'));
 
             if (!query) {
                 if (status) status.textContent = 'Type to search Client ID progressively.';
                 return;
             }
-
-            const allRows = Array.from(document.querySelectorAll('.tech-table tbody tr.client-row'));
 
             const exact = allRows.filter((row) => (row.getAttribute('data-client-id') || '').toLowerCase() === query);
             const starts = allRows.filter((row) => {
@@ -206,15 +204,19 @@ $stats = $stats_result->fetch_assoc();
                 return;
             }
 
-            currentSearchResults.forEach((row) => {
-                revealMatchRow(row);
-                row.classList.add('client-search-hit');
+            const matchedSet = new Set(currentSearchResults);
+            allRows.forEach((row) => {
+                if (!matchedSet.has(row)) {
+                    row.classList.add('client-search-hidden');
+                } else {
+                    revealMatchRow(row);
+                }
             });
 
             activateSearchResult(0);
 
             if (progressive && status) {
-                status.textContent = `Found ${currentSearchResults.length} match(es). Showing best match first.`;
+                status.textContent = `Found ${currentSearchResults.length} match(es).`;
             }
         }
 
