@@ -367,6 +367,24 @@ $stats = $stats_result->fetch_assoc();
                         $in_progress_count++;
                     }
                 }
+
+                // Sort clients so completed entries are pushed to the bottom.
+                usort($clients, function($a, $b) {
+                    $a_completed = (float)($a['Progress'] ?? 0) >= 100;
+                    $b_completed = (float)($b['Progress'] ?? 0) >= 100;
+
+                    if ($a_completed !== $b_completed) {
+                        return $a_completed ? 1 : -1;
+                    }
+
+                    // Keep non-completed clients ordered by progress (highest first).
+                    $progress_compare = (float)($b['Progress'] ?? 0) <=> (float)($a['Progress'] ?? 0);
+                    if ($progress_compare !== 0) {
+                        return $progress_compare;
+                    }
+
+                    return strcasecmp((string)($a['ClientName'] ?? ''), (string)($b['ClientName'] ?? ''));
+                });
                 ?>
                 <div class="tech-box" data-tech-id="<?php echo (int) $tech['UserID']; ?>">
                     <div class="tech-header">
