@@ -243,66 +243,7 @@ if ($clients_result) {
     <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body { background-color: #f4f4f4; }
-        .edit-container { max-width: 1600px; margin: 0 auto; padding: 20px; }
-        h2 { text-align: center; color: #333; margin-bottom: 30px; font-size: 32px; font-weight: 700; }
-        .success-message { background-color: #d4edda; color: #155724; padding: 15px 20px; border-radius: 6px; border-left: 4px solid #28a745; margin-bottom: 20px; }
-        .error-message { background-color: #f8d7da; color: #721c24; padding: 15px 20px; border-radius: 6px; border-left: 4px solid #dc3545; margin-bottom: 20px; }
-        .table-section { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
-        .table-section h3 { margin-top: 0; color: #007BFF; border-bottom: 2px solid #007BFF; padding-bottom: 10px; margin-bottom: 25px; font-size: 24px; }
-        .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-box { flex: 1; min-width: 250px; }
-        .search-box input { width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .search-box input:focus { outline: none; border-color: #007BFF; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); }
-        .clients-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .clients-table thead { background-color: #007BFF; color: white; }
-        .clients-table th { padding: 12px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 12px; cursor: pointer; user-select: none; }
-        .clients-table th:hover { background-color: #0056b3; }
-        .clients-table th.sortable::after { content: " ?"; opacity: 0.5; }
-        .clients-table th.sort-asc::after { content: " ?"; opacity: 1; }
-        .clients-table th.sort-desc::after { content: " ?"; opacity: 1; }
-        .clients-table td { padding: 12px; border-bottom: 1px solid #ddd; }
-        .clients-table tbody tr { transition: background-color 0.3s ease; }
-        .clients-table tbody tr:hover { background-color: #f8f9fa; }
-        .status-badge { padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; display: inline-block; }
-        .status-completed { background-color: #d4edda; color: #155724; }
-        .status-in-progress { background-color: #fff3cd; color: #856404; }
-        .status-not-started { background-color: #d1ecf1; color: #0c5460; }
-        .status-stalled { background-color: #f8d7da; color: #721c24; }
-        .status-canceled { background-color: #e2e3e5; color: #383d41; }
-        .status-pending { background-color: #cfe2ff; color: #084298; }
-        .btn-edit { background-color: #ffc107; color: #000; padding: 8px 16px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all 0.3s ease; }
-        .btn-edit:hover { background-color: #e0a800; transform: translateY(-2px); }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); }
-        .modal-content { background-color: #fff; margin: 2% auto; padding: 0; border-radius: 12px; width: 95%; max-width: 1200px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); }
-        .modal-header { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; padding: 20px 30px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { margin: 0; font-size: 24px; }
-        .close { color: white; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 20px; transition: color 0.3s; }
-        .close:hover { color: #f8f9fa; }
-        .modal-body { padding: 30px; }
-        .form-section-title { font-size: 18px; font-weight: 600; color: #555; margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 1px solid #ddd; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-weight: 600; margin-bottom: 8px; color: #333; font-size: 14px; }
-        .form-group input[type="text"], .form-group input[type="email"], .form-group select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #007BFF; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); }
-        .form-group small { margin-top: 5px; color: #666; font-size: 12px; }
-        .checkbox-group { display: flex; align-items: center; padding: 15px; background-color: #f8f9fa; border-radius: 6px; margin-bottom: 15px; }
-        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; margin-right: 10px; cursor: pointer; }
-        .checkbox-group label { margin: 0; font-weight: normal; cursor: pointer; }
-        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; max-height: 300px; overflow-y: auto; padding: 15px; background-color: #f8f9fa; border-radius: 6px; }
-        .checkbox-item { display: flex; align-items: center; padding: 8px; background-color: white; border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease; }
-        .checkbox-item:hover { background-color: #e9ecef; }
-        .checkbox-item input[type="checkbox"] { margin-right: 8px; width: 18px; height: 18px; cursor: pointer; }
-        .checkbox-item label { margin: 0; cursor: pointer; font-size: 14px; }
-        .modal-footer { padding: 20px 30px; background-color: #f8f9fa; border-radius: 0 0 12px 12px; display: flex; justify-content: flex-end; gap: 10px; }
-        .btn-primary { background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%); color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); }
-        .btn-secondary { background-color: #6c757d; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .btn-secondary:hover { background-color: #5a6268; }
-        .no-clients { text-align: center; padding: 60px 20px; color: #999; }
-    </style>
+        <link rel="stylesheet" type="text/css" href="css/edit_client.css">
 </head>
 <body>
 <?php include 'includes/header.php'; ?>
