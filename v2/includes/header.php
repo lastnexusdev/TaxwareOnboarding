@@ -12,58 +12,67 @@ $role = (string) ($_SESSION['role'] ?? '');
 ?>
 
 <div class="top-menu">
-    <a href="dashboard.php" class="top-menu-logo" aria-label="Taxware Dashboard Home">
-        <img src="https://kb.taxwaresystems.com/logo.png" alt="Taxware Systems">
-    </a>
-    <ul>
-        <li>
-            <a href="dashboard.php" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
-                Dashboard
-            </a>
-        </li>
+    <div class="top-menu-left">
+        <a href="dashboard.php" class="top-menu-logo" aria-label="Taxware Dashboard Home">
+            <img src="https://kb.taxwaresystems.com/logo.png" alt="Taxware Systems">
+        </a>
+    </div>
 
-        <?php if ($department === 1 || $role === 'admin'): ?>
+    <div class="top-menu-center">
+        <ul>
             <li>
-                <a href="sales.php" class="<?= $currentPage === 'sales' ? 'active' : '' ?>">
-                    Add Client
+                <a href="dashboard.php" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">
+                    Dashboard
                 </a>
             </li>
 
-            <li>
-                <a href="remove_client.php" class="<?= $currentPage === 'remove' ? 'active' : '' ?>">
-                    Remove Client
-                </a>
-            </li>
+            <?php if ($department === 1 || $role === 'admin'): ?>
+                <li>
+                    <a href="sales.php" class="<?= $currentPage === 'sales' ? 'active' : '' ?>">
+                        Add Client
+                    </a>
+                </li>
 
-            <li>
-                <a href="edit_client.php" class="<?= $currentPage === 'edit' ? 'active' : '' ?>">
-                    Edit Clients
-                </a>
-            </li>
+                <li>
+                    <a href="remove_client.php" class="<?= $currentPage === 'remove' ? 'active' : '' ?>">
+                        Remove Client
+                    </a>
+                </li>
 
-            <li>
-                <a href="settings.php" class="<?= $currentPage === 'settings' ? 'active' : '' ?>">
-                    Settings
-                </a>
-            </li>
+                <li>
+                    <a href="edit_client.php" class="<?= $currentPage === 'edit' ? 'active' : '' ?>">
+                        Edit Clients
+                    </a>
+                </li>
 
-            <li>
-                <a href="reports.php" class="<?= $currentPage === 'reports' ? 'active' : '' ?>">
-                    Reports
-                </a>
-            </li>
-        <?php endif; ?>
+                <li>
+                    <a href="settings.php" class="<?= $currentPage === 'settings' ? 'active' : '' ?>">
+                        Settings
+                    </a>
+                </li>
 
-        <?php if ($role === 'admin'): ?>
-            <li>
-                <a href="users.php" class="<?= $currentPage === 'users' ? 'active' : '' ?>">
-                    Manage Users
-                </a>
-            </li>
-        <?php endif; ?>
+                <li>
+                    <a href="reports.php" class="<?= $currentPage === 'reports' ? 'active' : '' ?>">
+                        Reports
+                    </a>
+                </li>
+            <?php endif; ?>
 
-        <li>
-            <a href="logout.php">Logout</a>
-        </li>
-    </ul>
+            <?php if ($role === 'admin'): ?>
+                <li>
+                    <a href="users.php" class="<?= $currentPage === 'users' ? 'active' : '' ?>">
+                        Manage Users
+                    </a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+
+    <div class="top-menu-right">
+        <ul>
+            <li>
+                <a href="logout.php">Logout</a>
+            </li>
+        </ul>
+    </div>
 </div>
