@@ -31,10 +31,12 @@ if ($archiveTableExists) {
     if (!empty($years)) {
         $selected_year = isset($_GET['year']) ? (int) $_GET['year'] : $years[0];
 
-        $sql = "SELECT ClientID, ClientName, AssignedTech, SalesRep, PhoneNumber, Email, Progress, Completed, ArchiveYear, ArchivedAt
-                FROM OnboardingArchive
-                WHERE ArchiveYear = ?
-                ORDER BY ClientName";
+        $sql = "SELECT o.ClientID, o.ClientName, o.AssignedTech, o.SalesRep, o.PhoneNumber, o.Email, o.Progress, o.Completed, o.ArchiveYear, o.ArchivedAt,
+                       u.FirstName AS TechFirstName, u.LastName AS TechLastName
+                FROM OnboardingArchive o
+                LEFT JOIN Users u ON CAST(o.AssignedTech AS CHAR) = CAST(u.UserID AS CHAR)
+                WHERE o.ArchiveYear = ?
+                ORDER BY o.ClientName";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('i', $selected_year);
         $stmt->execute();
@@ -101,7 +103,12 @@ if ($archiveTableExists) {
                         <tr>
                             <td><?php echo htmlspecialchars($client['ClientID']); ?></td>
                             <td><?php echo htmlspecialchars($client['ClientName']); ?></td>
-                            <td><?php echo htmlspecialchars((string) $client['AssignedTech']); ?></td>
+                            <td>
+                                <?php
+                                $techName = trim((string) (($client['TechFirstName'] ?? '') . ' ' . ($client['TechLastName'] ?? '')));
+                                echo htmlspecialchars($techName !== '' ? $techName : (string) $client['AssignedTech']);
+                                ?>
+                            </td>
                             <td><?php echo htmlspecialchars($client['SalesRep']); ?></td>
                             <td><?php echo htmlspecialchars($client['PhoneNumber']); ?></td>
                             <td><?php echo htmlspecialchars($client['Email']); ?></td>
