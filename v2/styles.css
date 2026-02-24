@@ -1743,7 +1743,7 @@ body.page-sales{
         }
 
         body.page-sales .info-card{
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            background: linear-gradient(135deg, #f8ece9 0%, #f2ddd6 100%);
             padding: 15px;
             border-radius: 6px;
             border-left: 4px solid #007BFF;
@@ -1752,7 +1752,7 @@ body.page-sales{
 
         body.page-sales .info-card p{
             margin: 5px 0;
-            color: #0d47a1;
+            color: #7a3a2f;
             font-size: 14px;
         }
 
@@ -1821,8 +1821,8 @@ body.page-settings{
 
         body.page-settings .settings-card h3{
             margin-top: 0;
-            color: #007BFF;
-            border-bottom: 2px solid #007BFF;
+            color: #7a3a2f;
+            border-bottom: 2px solid #9e4a3d;
             padding-bottom: 10px;
             margin-bottom: 20px;
             font-size: 20px;
@@ -1848,8 +1848,8 @@ body.page-settings{
         }
 
         body.page-settings .form-group input[type="text"],
-        .form-group textarea,
-        .form-group select{
+        body.page-settings .form-group textarea,
+        body.page-settings .form-group select{
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -1864,11 +1864,11 @@ body.page-settings{
         }
 
         body.page-settings .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus{
+        body.page-settings .form-group textarea:focus,
+        body.page-settings .form-group select:focus{
             outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+            border-color: #9e4a3d;
+            box-shadow: 0 0 0 3px rgba(158, 74, 61, 0.15);
         }
 
         body.page-settings .toggle-switch{
@@ -1897,8 +1897,9 @@ body.page-settings{
         body.page-settings .switch{
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 24px;
+            width: 42px;
+            height: 22px;
+            flex: 0 0 auto;
         }
 
         body.page-settings .switch input{
@@ -1916,14 +1917,14 @@ body.page-settings{
             bottom: 0;
             background-color: #ccc;
             transition: .4s;
-            border-radius: 24px;
+            border-radius: 22px;
         }
 
         body.page-settings .slider:before{
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 16px;
+            width: 16px;
             left: 3px;
             bottom: 3px;
             background-color: white;
@@ -1936,11 +1937,11 @@ body.page-settings{
         }
 
         body.page-settings input:checked + .slider:before{
-            transform: translateX(26px);
+            transform: translateX(20px);
         }
 
         body.page-settings .btn-primary{
-            background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+            background: linear-gradient(135deg, #9e4a3d 0%, #7a3a2f 100%);
             color: white;
             padding: 12px 24px;
             border: none;
@@ -1949,14 +1950,14 @@ body.page-settings{
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            box-shadow: 0 4px 10px rgba(122, 58, 47, 0.25);
             width: 100%;
             margin-top: 10px;
         }
 
         body.page-settings .btn-primary:hover{
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 6px 15px rgba(122, 58, 47, 0.35);
         }
 
         body.page-settings .btn-danger{
@@ -2018,7 +2019,7 @@ body.page-settings{
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 10px;
-            border-left: 4px solid #007BFF;
+            border-left: 4px solid #9e4a3d;
         }
 
         body.page-settings .package-item h4{
@@ -2041,7 +2042,7 @@ body.page-settings{
         }
 
         body.page-settings .program-badge{
-            background-color: #007BFF;
+            background-color: #9e4a3d;
             color: white;
             padding: 4px 10px;
             border-radius: 12px;
@@ -2058,22 +2059,22 @@ body.page-settings{
         }
 
         body.page-settings .info-banner{
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            background: linear-gradient(135deg, #f8ece9 0%, #f2ddd6 100%);
             padding: 15px 20px;
             border-radius: 6px;
-            border-left: 4px solid #007BFF;
+            border-left: 4px solid #9e4a3d;
             margin-bottom: 20px;
         }
 
         body.page-settings .info-banner h4{
             margin: 0 0 8px 0;
-            color: #0d47a1;
+            color: #7a3a2f;
             font-size: 16px;
         }
 
         body.page-settings .info-banner p{
             margin: 0;
-            color: #01579b;
+            color: #5f2c24;
             font-size: 14px;
         }
 
@@ -3070,7 +3071,7 @@ body.page-remove-client{
         body.page-remove-client .selected-count{
             padding: 10px 15px;
             background-color: #e3f2fd;
-            color: #0d47a1;
+            color: #7a3a2f;
             border-radius: 6px;
             font-weight: 600;
             font-size: 14px;
@@ -3645,4 +3646,3 @@ body:not(.page-dashboard) .badge,
 body:not(.page-dashboard) .status-badge {
     border-radius: 999px;
 }
-

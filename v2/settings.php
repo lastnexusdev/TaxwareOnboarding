@@ -302,10 +302,10 @@ $conn->close();
         <div class="settings-grid">
             <!-- Software Release Settings -->
             <div class="settings-card">
-                <h3><span class="icon">??</span> Software Release</h3>
+                <h3><span class="icon" aria-hidden="true">🛠️</span> Software Release</h3>
                 
                 <div class="info-banner">
-                    <h4>?? About Software Releases</h4>
+                    <h4>About Software Releases</h4>
                     <p>When a new version is released, this setting triggers an additional checklist item for all clients. Progress percentages will be recalculated automatically.</p>
                 </div>
 
@@ -329,7 +329,7 @@ $conn->close();
 
             <!-- System Preferences -->
             <div class="settings-card">
-                <h3><span class="icon">??</span> System Preferences</h3>
+                <h3><span class="icon" aria-hidden="true">⚙️</span> System Preferences</h3>
 
                 <form method="POST" action="">
                     <div class="toggle-switch">
@@ -375,10 +375,10 @@ $conn->close();
         <div class="settings-grid">
             <!-- Add New Program -->
             <div class="settings-card">
-                <h3><span class="icon">?</span> Add New Program</h3>
+                <h3><span class="icon" aria-hidden="true">➕</span> Add New Program</h3>
 
                 <div class="info-banner">
-                    <h4>?? Adding Programs</h4>
+                    <h4>Adding Programs</h4>
                     <p>Add new software programs that can be assigned to clients. Programs will be available when creating packages.</p>
                 </div>
 
@@ -405,10 +405,10 @@ $conn->close();
 
             <!-- Create Custom Package -->
             <div class="settings-card">
-                <h3><span class="icon">??</span> Create Custom Package</h3>
+                <h3><span class="icon" aria-hidden="true">📦</span> Create Custom Package</h3>
 
                 <div class="info-banner">
-                    <h4>?? Custom Packages</h4>
+                    <h4>Custom Packages</h4>
                     <p>Create reusable package templates with specific program combinations for faster client setup.</p>
                 </div>
 
@@ -444,7 +444,7 @@ $conn->close();
 
         <!-- Existing Custom Packages -->
         <div class="settings-card" style="grid-column: 1 / -1;">
-            <h3><span class="icon">??</span> Custom Packages</h3>
+            <h3><span class="icon" aria-hidden="true">📚</span> Custom Packages</h3>
 
             <?php if (count($custom_packages) > 0): ?>
                 <div class="packages-list">
@@ -468,7 +468,7 @@ $conn->close();
 
                             <form method="POST" action="" style="display: inline;" onsubmit="return confirmDelete('<?php echo htmlspecialchars($package['PackageName']); ?>');">
                                 <input type="hidden" name="package_id" value="<?php echo $package['PackageID']; ?>"><button type="submit" name="delete_package" class="btn-danger">
-                                    ??? Delete Package
+                                    Delete Package
                                 </button>
                             </form>
                         </div>
