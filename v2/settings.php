@@ -121,7 +121,7 @@ if ($archiveTableCheck && $archiveTableCheck->num_rows > 0) {
 
 // Handle Year Rollover / Archive
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['run_year_rollover'])) {
-    $next_tax_year = (int) ($_POST['next_tax_year'] ?? ($active_tax_year + 1));
+    $next_tax_year = $active_tax_year + 1;
 
     if ($next_tax_year <= $active_tax_year) {
         $error_message = 'Next tax year must be greater than the current active year.';
@@ -562,18 +562,13 @@ $conn->close();
 
                 <div class="warning-banner">
                     <h4>Archive Current Year and Start New Year</h4>
-                    <p>This archives all active clients and related records, clears current onboarding grids, and moves the system into the next tax year.</p>
+                    <p>This archives all active clients and related records, clears current onboarding grids, and automatically moves the system into the next tax year.</p>
                 </div>
 
                 <form method="POST" action="" onsubmit="return confirm('Are you sure you want to archive the current year and start a new year? This will clear active client grids.');">
                     <div class="form-group">
                         <label>Current Active Tax Year</label>
                         <input type="text" value="<?php echo htmlspecialchars((string) $active_tax_year); ?>" disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="next_tax_year">Next Tax Year</label>
-                        <input type="number" id="next_tax_year" name="next_tax_year" value="<?php echo htmlspecialchars((string) ($active_tax_year + 1)); ?>" min="<?php echo htmlspecialchars((string) ($active_tax_year + 1)); ?>" required>
                     </div>
 
                     <button type="submit" name="run_year_rollover" class="btn-primary">Run Year Rollover</button>

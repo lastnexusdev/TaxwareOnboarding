@@ -1881,7 +1881,7 @@ body.page-settings{
             margin-bottom: 15px;
         }
 
-        body.page-settings .toggle-switch label{
+        body.page-settings .toggle-switch > div > label{
             margin: 0;
             font-weight: 500;
             cursor: pointer;
@@ -1898,8 +1898,12 @@ body.page-settings{
             position: relative;
             display: inline-block;
             width: 42px;
+            min-width: 42px;
+            max-width: 42px;
             height: 22px;
-            flex: 0 0 auto;
+            flex: 0 0 42px;
+            margin-left: 14px;
+            vertical-align: middle;
         }
 
         body.page-settings .switch input{
