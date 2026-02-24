@@ -3714,3 +3714,57 @@ body.page-archived-clients .empty-state {
     padding: 16px;
     border-radius: 8px;
 }
+
+/* --- archived_dashboard.css --- */
+body.page-archived-dashboard .archive-dashboard-container,
+body.page-archived-onboarding-detail .archive-detail-container {
+    max-width: 1500px;
+    margin: 22px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+body.page-archived-dashboard h2,
+body.page-archived-onboarding-detail h2 {
+    color: #7a3a2f;
+    margin-top: 0;
+}
+
+body.page-archived-dashboard .tech-box {
+    margin: 16px 0;
+}
+
+body.page-archived-dashboard .tech-table tbody tr {
+    cursor: pointer;
+}
+
+body.page-archived-dashboard .tech-table tbody tr:hover {
+    background: rgba(158, 74, 61, 0.08);
+}
+
+body.page-archived-onboarding-detail .archive-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px 18px;
+    margin-bottom: 18px;
+}
+
+body.page-archived-onboarding-detail .archive-panel {
+    margin-bottom: 16px;
+    border: 1px solid #e6d4d1;
+    border-radius: 10px;
+    padding: 14px;
+    background: #fffaf9;
+}
+
+body.page-archived-onboarding-detail .archive-panel h3 {
+    margin-top: 0;
+    color: #7a3a2f;
+}
+
+body.page-archived-onboarding-detail .archive-program-list {
+    margin: 0;
+    padding-left: 18px;
+}

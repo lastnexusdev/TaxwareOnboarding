@@ -63,6 +63,7 @@ if ($archiveTableExists) {
     <div class="archive-controls">
         <a href="settings.php" class="btn-secondary">← Back to Settings</a>
         <?php if ($archiveTableExists && !empty($years)): ?>
+            <a href="archived_dashboard.php?year=<?php echo urlencode((string) $selected_year); ?>" class="btn">See in Dashboard</a>
             <form method="GET" action="" class="year-form">
                 <label for="year">Archive Year</label>
                 <select id="year" name="year" onchange="this.form.submit()">
