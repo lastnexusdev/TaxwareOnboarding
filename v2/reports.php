@@ -98,7 +98,7 @@ $conn->close();
 
             // Color palette matching dashboard
             var techColors = [
-                'rgba(0, 123, 255, 0.8)',
+                'rgba(158, 74, 61, 0.85)',
                 'rgba(40, 167, 69, 0.8)',
                 'rgba(255, 193, 7, 0.8)',
                 'rgba(220, 53, 69, 0.8)',

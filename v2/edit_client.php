@@ -250,11 +250,11 @@ if ($clients_result) {
         <h2>Edit Clients</h2>
 
         <?php if ($success_message): ?>
-            <div class="success-message">? <?php echo htmlspecialchars($success_message); ?></div>
+            <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
         <?php endif; ?>
 
         <?php if ($error_message): ?>
-            <div class="error-message">? <?php echo htmlspecialchars($error_message); ?></div>
+            <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
         <?php endif; ?>
 
         <div class="table-section">
@@ -263,7 +263,7 @@ if ($clients_result) {
             <?php if (count($clients) > 0): ?>
                 <div class="table-controls">
                     <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="?? Search by client name, ID, tech, sales rep...">
+                        <input type="text" id="searchInput" placeholder="Search by client name, ID, tech, sales rep...">
                     </div>
                 </div>
 
