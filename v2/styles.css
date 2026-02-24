@@ -1605,6 +1605,12 @@ body.page-onboarding-detail .history{
             color: white;
         }
 
+
+        body.page-onboarding-detail .badge-paygo{
+            background-color: #6f42c1;
+            color: white;
+        }
+
 /* --- sales.css --- */
 
 body.page-sales{

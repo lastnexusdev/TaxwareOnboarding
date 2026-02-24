@@ -108,7 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
 
     $conversion_needed= $_POST['conversion_needed'] ?? 'No';
     $spanish          = $_POST['spanish'] ?? 'No';
-    $bank_enrollment  = $_POST['bank_enrollment'] ?? 'No';
+    $bank_enrollment  = isset($_POST['bank_enrollment']) ? 'Yes' : 'No';
+    $paygo            = isset($_POST['paygo']) ? 'Yes' : 'No';
     $package          = $_POST['package'] ?? '';
     $ready_to_call    = isset($_POST['ready_to_call']) ? 1 : 0;
     $notes            = $_POST['notes'] ?? '';
@@ -186,27 +187,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
 
     // Insert client into Onboarding
     if (empty($error_message)) {
-    $sql = "INSERT INTO Onboarding 
-        (DateAdded, ClientID, ClientName, AssignedTech, SalesRep, Email, PhoneNumber, PreviousSoftware, ConvertionNeeded, Spanish, BankEnrollment, Package, ReadyToCall, UploadToken) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param(
-        "ssssssssssssis",
-        $date_added,
-        $client_id,
-        $client_name,
-        $assigned_tech,
-        $sales_rep,
-        $email,
-        $phone_number,
-        $previous_software,
-        $conversion_needed,
-        $spanish,
-        $bank_enrollment,
-        $package,
-        $ready_to_call,
-        $upload_token
-    );
+    $has_paygo_column = false;
+    if ($paygo_col_result = $conn->query("SHOW COLUMNS FROM Onboarding LIKE 'PayGo'")) {
+        $has_paygo_column = $paygo_col_result->num_rows > 0;
+        $paygo_col_result->free();
+    }
+
+    if ($has_paygo_column) {
+        $sql = "INSERT INTO Onboarding 
+            (DateAdded, ClientID, ClientName, AssignedTech, SalesRep, Email, PhoneNumber, PreviousSoftware, ConvertionNeeded, Spanish, BankEnrollment, PayGo, Package, ReadyToCall, UploadToken) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(
+            "sssssssssssssis",
+            $date_added,
+            $client_id,
+            $client_name,
+            $assigned_tech,
+            $sales_rep,
+            $email,
+            $phone_number,
+            $previous_software,
+            $conversion_needed,
+            $spanish,
+            $bank_enrollment,
+            $paygo,
+            $package,
+            $ready_to_call,
+            $upload_token
+        );
+    } else {
+        $sql = "INSERT INTO Onboarding 
+            (DateAdded, ClientID, ClientName, AssignedTech, SalesRep, Email, PhoneNumber, PreviousSoftware, ConvertionNeeded, Spanish, BankEnrollment, Package, ReadyToCall, UploadToken) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(
+            "ssssssssssssis",
+            $date_added,
+            $client_id,
+            $client_name,
+            $assigned_tech,
+            $sales_rep,
+            $email,
+            $phone_number,
+            $previous_software,
+            $conversion_needed,
+            $spanish,
+            $bank_enrollment,
+            $package,
+            $ready_to_call,
+            $upload_token
+        );
+    }
     if ($stmt->execute()) {
         // Insert entitled programs
         $ent_sql = "INSERT INTO EntitledPrograms 
@@ -590,14 +622,6 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                         <small>Does client data need to be converted?</small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="bank_enrollment">Bank Enrollment</label>
-                        <select id="bank_enrollment" name="bank_enrollment" required>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                        <small>Does client need bank enrollment?</small>
-                    </div>
 
                     <div class="form-group">
                         <label for="package">Package</label>
@@ -622,12 +646,20 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                     </div>
                 </div>
 
-                <!-- Ready to Call Section -->
-		<div class="form-section-title">Contact Readiness</div>
-		<div class="checkbox-group">
-		    <input type="checkbox" id="ready_to_call" name="ready_to_call" value="1" <?php echo $default_ready_to_call == 1 ? 'checked' : ''; ?>>
-		    <label for="ready_to_call">Client is ready to be contacted</label>
-		</div>
+                <!-- Options/Addons Section -->
+                <div class="form-section-title">Options/Addons</div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="ready_to_call" name="ready_to_call" value="1" <?php echo $default_ready_to_call == 1 ? 'checked' : ''; ?>>
+                    <label for="ready_to_call">Client is ready to be contacted</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="bank_enrollment" name="bank_enrollment" value="1">
+                    <label for="bank_enrollment">Bank Enrollment</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="paygo" name="paygo" value="1">
+                    <label for="paygo">PayGo</label>
+                </div>
 
                 <!-- Notes Section -->
                 <div class="form-section-title">Additional Notes</div>

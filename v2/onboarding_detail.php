@@ -494,8 +494,11 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
                 <?php if ($client['ConvertionNeeded'] == 'Yes'): ?>
                     <span class="badge badge-conversion">Conversion Needed</span>
                 <?php endif; ?>
-                <?php if ($client['BankEnrollment'] == 'Yes'): ?>
+                <?php if (($client['BankEnrollment'] ?? 'No') == 'Yes'): ?>
                     <span class="badge badge-bank">Bank Enrollment</span>
+                <?php endif; ?>
+                <?php if (($client['PayGo'] ?? 'No') == 'Yes'): ?>
+                    <span class="badge badge-paygo">PayGo</span>
                 <?php endif; ?>
             </div>
             <?php if ($is_other_tech && !$is_temporarily_unlocked): ?>
@@ -563,7 +566,11 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
                     </div>
                     <div class="info-item">
                         <strong>Bank Enrollment</strong>
-                        <span class="value"><?php echo htmlspecialchars($client['BankEnrollment']); ?></span>
+                        <span class="value"><?php echo htmlspecialchars($client['BankEnrollment'] ?? 'No'); ?></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>PayGo</strong>
+                        <span class="value"><?php echo htmlspecialchars($client['PayGo'] ?? 'No'); ?></span>
                     </div>
                     <div class="info-item">
                         <strong>Package</strong>
