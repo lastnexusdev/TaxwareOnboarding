@@ -79,6 +79,15 @@ $stats = $stats_result->fetch_assoc();
         function goToDetail(clientId) {
             window.location.href = 'onboarding_detail.php?client_id=' + clientId;
         }
+
+        function toggleTechClients(button) {
+            const techBox = button.closest('.tech-box');
+            if (!techBox) return;
+
+            const isCollapsed = techBox.classList.toggle('collapsed');
+            button.setAttribute('aria-expanded', (!isCollapsed).toString());
+            button.setAttribute('title', isCollapsed ? 'Expand clients' : 'Collapse clients');
+        }
     </script>
 </head>
 
@@ -197,7 +206,12 @@ $stats = $stats_result->fetch_assoc();
                 ?>
                 <div class="tech-box">
                     <div class="tech-header">
-                        <h3><?php echo htmlspecialchars($tech['FirstName'] . ' ' . $tech['LastName']); ?></h3>
+                        <h3>
+                            <button type="button" class="tech-name-toggle" aria-expanded="true" title="Collapse clients" onclick="toggleTechClients(this)">
+                                <?php echo htmlspecialchars($tech['FirstName'] . ' ' . $tech['LastName']); ?>
+                                <span class="toggle-icon" aria-hidden="true">▾</span>
+                            </button>
+                        </h3>
                         <div class="tech-stats">
                             <span class="tech-stat"><?php echo $client_count; ?> Total</span>
                             <span class="tech-stat"><?php echo $completed_count; ?> Complete</span>

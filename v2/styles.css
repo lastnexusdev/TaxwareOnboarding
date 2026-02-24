@@ -813,6 +813,33 @@ body.page-dashboard{
         color: #fff !important;
     }
 
+    body.page-dashboard .tech-name-toggle {
+        border: none;
+        background: transparent;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    body.page-dashboard .tech-name-toggle .toggle-icon {
+        font-size: 16px;
+        transition: transform 0.2s ease;
+        line-height: 1;
+    }
+
+    body.page-dashboard .tech-box.collapsed .tech-table {
+        display: none;
+    }
+
+    body.page-dashboard .tech-box.collapsed .tech-name-toggle .toggle-icon {
+        transform: rotate(-90deg);
+    }
+
     body.page-dashboard .tech-stats{
         display: flex;
         gap: 15px;
