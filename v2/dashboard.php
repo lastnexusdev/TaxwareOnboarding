@@ -368,8 +368,9 @@ $stats = $stats_result->fetch_assoc();
                     }
                 }
 
-                // Sort clients by dashboard priority:
-                // 1) Stalled first, 2) Not Started, 3) In Progress (by progress), 4) Completed, 5) Cancelled last.
+                // Sort clients by dashboard priority for every tech listing:
+                // 1) Stalled, 2) Not Started, 3) In Progress (least progress first),
+                // 4) Completed (alphabetical), 5) Cancelled (alphabetical at end).
                 usort($clients, function($a, $b) {
                     $get_rank = function($client) {
                         if (!empty($client['Cancelled'])) {
@@ -395,14 +396,15 @@ $stats = $stats_result->fetch_assoc();
                         return $a_rank <=> $b_rank;
                     }
 
-                    // For in-progress clients, order by progress (highest first).
+                    // For in-progress clients, prioritize least completed first.
                     if ($a_rank === 3) {
-                        $progress_compare = (float)($b['Progress'] ?? 0) <=> (float)($a['Progress'] ?? 0);
+                        $progress_compare = (float)($a['Progress'] ?? 0) <=> (float)($b['Progress'] ?? 0);
                         if ($progress_compare !== 0) {
                             return $progress_compare;
                         }
                     }
 
+                    // Completed/cancelled/not-started/stalled ties fall back to name.
                     return strcasecmp((string)($a['ClientName'] ?? ''), (string)($b['ClientName'] ?? ''));
                 });
                 ?>
