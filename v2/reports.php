@@ -189,7 +189,6 @@ $conn->close();
             document.querySelector('.button-container button').classList.add('active');
         };
     </script>
-    <link rel="stylesheet" type="text/css" href="css/reports.css">
 </head>
 <body>
 <?php include 'includes/header.php'; ?>    

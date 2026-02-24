@@ -101,7 +101,6 @@ if (!empty($client_id)) {
 <html>
 <head>
     <title>History Manager</title>
-        <link rel="stylesheet" type="text/css" href="css/history.css">
 </head>
 <body>
     <div class="container">

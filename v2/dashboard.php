@@ -80,7 +80,6 @@ $stats = $stats_result->fetch_assoc();
             window.location.href = 'onboarding_detail.php?client_id=' + clientId;
         }
     </script>
-    <link rel="stylesheet" type="text/css" href="css/dashboard.css">
 </head>
 
 <body>

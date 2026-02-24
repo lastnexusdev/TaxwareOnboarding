@@ -131,7 +131,6 @@ $users_result = $conn->query($users_sql);
     <title>User Management</title>
     <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
-        <link rel="stylesheet" type="text/css" href="css/users.css">
 </head>
 <body>
 <?php include 'includes/header.php'; ?>

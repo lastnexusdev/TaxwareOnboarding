@@ -476,7 +476,6 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
             }
         }
     </script>
-    <link rel="stylesheet" type="text/css" href="css/onboarding_detail.css">
 </head>
 <body>
     <div class="top-menu">

@@ -60,7 +60,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Taxware Systems</title>
     <link rel="stylesheet" href="styles.css">
-        <link rel="stylesheet" type="text/css" href="css/login.css">
 </head>
 <body>
     <!-- Header Bar -->

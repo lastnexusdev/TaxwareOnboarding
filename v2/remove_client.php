@@ -185,7 +185,6 @@ while ($client = $clients_result->fetch_assoc()) {
             });
         });
     </script>
-    <link rel="stylesheet" type="text/css" href="css/remove_client.css">
 </head>
 <body>
 <?php include 'includes/header.php'; ?>

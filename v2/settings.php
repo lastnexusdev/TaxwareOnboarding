@@ -281,7 +281,6 @@ $conn->close();
             return confirm('Are you sure you want to delete the package "' + packageName + '"?\n\nThis action cannot be undone.');
         }
     </script>
-    <link rel="stylesheet" type="text/css" href="css/settings.css">
 </head>
 <body>
 <?php include 'includes/header.php'; ?>

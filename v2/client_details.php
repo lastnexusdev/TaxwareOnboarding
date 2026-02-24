@@ -29,7 +29,6 @@ if (!$client) {
     <title>Onboarding Details</title>
     <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
-        <link rel="stylesheet" type="text/css" href="css/client_details.css">
 </head>
 <body>
     <div class="container">

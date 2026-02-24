@@ -469,7 +469,6 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
             }
         }
     </script>
-    <link rel="stylesheet" type="text/css" href="css/sales.css">
 </head>
 <body>
 <?php include 'includes/header.php'; ?>

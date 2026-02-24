@@ -243,7 +243,6 @@ if ($clients_result) {
     <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="css/edit_client.css">
 </head>
 <body>
 <?php include 'includes/header.php'; ?>
