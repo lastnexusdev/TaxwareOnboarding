@@ -1025,6 +1025,12 @@ body.page-dashboard{
         }
     }
 
+    @media (max-height: 1080px){
+        body.page-dashboard .tech-container{
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
     @media (max-width: 900px){
         body.page-dashboard .tech-container{
             grid-template-columns: 1fr;
