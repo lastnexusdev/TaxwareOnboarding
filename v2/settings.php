@@ -16,6 +16,56 @@ if (!isset($_SESSION['userid']) ||
 $success_message = '';
 $error_message = '';
 
+function get_setting_value(mysqli $conn, string $name, $default = null)
+{
+    $sql = "SELECT Setting_Value FROM admin_settings WHERE Setting_Name = ? LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('s', $name);
+    $stmt->execute();
+    $res = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $res['Setting_Value'] ?? $default;
+}
+
+function upsert_setting_value(mysqli $conn, string $name, string $value, int $userId): void
+{
+    $existsSql = "SELECT COUNT(*) as count FROM admin_settings WHERE Setting_Name = ?";
+    $stmt = $conn->prepare($existsSql);
+    $stmt->bind_param('s', $name);
+    $stmt->execute();
+    $exists = ((int) $stmt->get_result()->fetch_assoc()['count']) > 0;
+    $stmt->close();
+
+    if ($exists) {
+        $updateSql = "UPDATE admin_settings SET Setting_Value = ? WHERE Setting_Name = ?";
+        $stmt = $conn->prepare($updateSql);
+        $stmt->bind_param('ss', $value, $name);
+        $stmt->execute();
+        $stmt->close();
+    } else {
+        $insertSql = "INSERT INTO admin_settings (Setting_Name, Setting_Value, UserID) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($insertSql);
+        $stmt->bind_param('ssi', $name, $value, $userId);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
+function ensure_archive_table(mysqli $conn, string $sourceTable, string $archiveTable): void
+{
+    $conn->query("CREATE TABLE IF NOT EXISTS `{$archiveTable}` LIKE `{$sourceTable}`");
+
+    $columnCheck = $conn->query("SHOW COLUMNS FROM `{$archiveTable}` LIKE 'ArchiveYear'");
+    if ($columnCheck && $columnCheck->num_rows === 0) {
+        $conn->query("ALTER TABLE `{$archiveTable}` ADD COLUMN ArchiveYear INT NOT NULL");
+    }
+
+    $archivedAtCheck = $conn->query("SHOW COLUMNS FROM `{$archiveTable}` LIKE 'ArchivedAt'");
+    if ($archivedAtCheck && $archivedAtCheck->num_rows === 0) {
+        $conn->query("ALTER TABLE `{$archiveTable}` ADD COLUMN ArchivedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP");
+    }
+}
+
 // Fetch current settings
 $settings = [];
 $settings_sql = "SELECT Setting_Name, Setting_Value FROM admin_settings";
@@ -25,6 +75,51 @@ while ($row = $settings_result->fetch_assoc()) {
 }
 
 $new_software_release = $settings['NewSoftwareRelease'] ?? 0;
+$active_tax_year = (int) ($settings['ActiveTaxYear'] ?? date('Y'));
+
+// Handle Year Rollover / Archive
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['run_year_rollover'])) {
+    $next_tax_year = (int) ($_POST['next_tax_year'] ?? ($active_tax_year + 1));
+
+    if ($next_tax_year <= $active_tax_year) {
+        $error_message = 'Next tax year must be greater than the current active year.';
+    } else {
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        try {
+            $conn->begin_transaction();
+
+            // Ensure archive tables exist with rollover metadata columns
+            ensure_archive_table($conn, 'Onboarding', 'OnboardingArchive');
+            ensure_archive_table($conn, 'OnboardingDetails', 'OnboardingDetailsArchive');
+            ensure_archive_table($conn, 'OnboardingHistory', 'OnboardingHistoryArchive');
+            ensure_archive_table($conn, 'EntitledPrograms', 'EntitledProgramsArchive');
+            ensure_archive_table($conn, 'Notification', 'NotificationArchive');
+
+            // Archive current year data
+            $conn->query("INSERT INTO OnboardingArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM Onboarding");
+            $conn->query("INSERT INTO OnboardingDetailsArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM OnboardingDetails");
+            $conn->query("INSERT INTO OnboardingHistoryArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM OnboardingHistory");
+            $conn->query("INSERT INTO EntitledProgramsArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM EntitledPrograms");
+            $conn->query("INSERT INTO NotificationArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM Notification");
+
+            // Clear active-year grids/tables for new year start
+            $conn->query("DELETE FROM Notification");
+            $conn->query("DELETE FROM OnboardingHistory");
+            $conn->query("DELETE FROM OnboardingDetails");
+            $conn->query("DELETE FROM EntitledPrograms");
+            $conn->query("DELETE FROM Onboarding");
+
+            upsert_setting_value($conn, 'ActiveTaxYear', (string) $next_tax_year, (int) $_SESSION['userid']);
+
+            $conn->commit();
+            $success_message = "Year rollover completed. Archived {$active_tax_year} clients and switched active year to {$next_tax_year}.";
+            $active_tax_year = $next_tax_year;
+        } catch (Throwable $e) {
+            $conn->rollback();
+            $error_message = 'Year rollover failed: ' . $e->getMessage();
+        }
+    }
+}
 
 // Fetch all software programs
 $programs_sql = "SHOW COLUMNS FROM EntitledPrograms LIKE 'prog_%'";
@@ -368,6 +463,31 @@ $conn->close();
                     <button type="submit" name="update_system_settings" class="btn-primary">
                         Update System Preferences
                     </button>
+                </form>
+            </div>
+
+            <!-- Year Rollover / Archive -->
+            <div class="settings-card">
+                <h3><span class="icon" aria-hidden="true">🗂️</span> Year Rollover</h3>
+
+                <div class="warning-banner">
+                    <h4>Archive Current Year and Start New Year</h4>
+                    <p>This archives all active clients and related records, clears current onboarding grids, and moves the system into the next tax year.</p>
+                </div>
+
+                <form method="POST" action="" onsubmit="return confirm('Are you sure you want to archive the current year and start a new year? This will clear active client grids.');">
+                    <div class="form-group">
+                        <label>Current Active Tax Year</label>
+                        <input type="text" value="<?php echo htmlspecialchars((string) $active_tax_year); ?>" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="next_tax_year">Next Tax Year</label>
+                        <input type="number" id="next_tax_year" name="next_tax_year" value="<?php echo htmlspecialchars((string) ($active_tax_year + 1)); ?>" min="<?php echo htmlspecialchars((string) ($active_tax_year + 1)); ?>" required>
+                    </div>
+
+                    <button type="submit" name="run_year_rollover" class="btn-primary">Run Year Rollover</button>
+                    <a href="archived_clients.php" class="btn-secondary" style="display:inline-block; margin-top:10px; text-align:center; width:100%; box-sizing:border-box; text-decoration:none;">View Archived Clients</a>
                 </form>
             </div>
         </div>

@@ -3649,3 +3649,68 @@ body:not(.page-dashboard) .badge,
 body:not(.page-dashboard) .status-badge {
     border-radius: 999px;
 }
+
+/* --- archived_clients.css --- */
+body.page-archived-clients .archive-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+body.page-archived-clients h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+body.page-archived-clients .archive-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+
+body.page-archived-clients .year-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.page-archived-clients .year-form select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+body.page-archived-clients .table-wrap {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: auto;
+}
+
+body.page-archived-clients .archive-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+body.page-archived-clients .archive-table th,
+body.page-archived-clients .archive-table td {
+    border-bottom: 1px solid #e6e6e6;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+}
+
+body.page-archived-clients .archive-table th {
+    background: #9e4a3d;
+    color: #fff;
+}
+
+body.page-archived-clients .empty-state {
+    background: #fff;
+    border-left: 4px solid #9e4a3d;
+    padding: 16px;
+    border-radius: 8px;
+}
