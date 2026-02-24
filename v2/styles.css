@@ -3595,6 +3595,9 @@ body.page-client-details .tooltip{
 
 body:not(.page-dashboard) {
     background-color: var(--tw-bg);
+    background-image: url('https://kb.taxwaresystems.com/web_texture_mirrored.svg');
+    background-repeat: repeat;
+    background-attachment: fixed;
     color: var(--tw-text);
 }
 
