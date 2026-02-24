@@ -856,21 +856,12 @@ body.page-dashboard{
     }
 
     /* Table Styling */
-    body.page-dashboard .tech-table-wrap{
-        max-height: 720px;
-        overflow-y: auto;
-        overflow-x: auto;
-    }
-
     body.page-dashboard .tech-table{
         width: 100%;
         border-collapse: collapse;
     }
 
     body.page-dashboard .tech-table th{
-        position: sticky;
-        top: 0;
-        z-index: 2;
         background-color: #f8f9fa;
         color: #495057;
         padding: 12px 10px;

@@ -218,7 +218,6 @@ $stats = $stats_result->fetch_assoc();
                             <span class="tech-stat"><?php echo $in_progress_count; ?> Active</span>
                         </div>
                     </div>
-                    <div class="tech-table-wrap">
                     <table class="tech-table">
                         <thead>
                             <tr>
@@ -301,7 +300,6 @@ $stats = $stats_result->fetch_assoc();
                             <?php endif; ?>
                         </tbody>
                     </table>
-                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
