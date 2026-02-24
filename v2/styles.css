@@ -637,9 +637,11 @@ body.page-dashboard{
     }
 
     body.page-dashboard .dashboard-container{
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 20px;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 20px 24px;
+        box-sizing: border-box;
     }
 
     body.page-dashboard h2{
@@ -780,8 +782,8 @@ body.page-dashboard{
     /* Tech Container */
     body.page-dashboard .tech-container{
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
     }
 
     body.page-dashboard .tech-box{
@@ -1011,7 +1013,13 @@ body.page-dashboard{
     }
 
     /* Responsive Design */
-    @media (max-width: 1200px){
+    @media (max-width: 1600px){
+        body.page-dashboard .tech-container{
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 1100px){
         body.page-dashboard .tech-container{
             grid-template-columns: 1fr;
         }
