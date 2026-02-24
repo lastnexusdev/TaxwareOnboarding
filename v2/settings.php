@@ -66,6 +66,37 @@ function ensure_archive_table(mysqli $conn, string $sourceTable, string $archive
     }
 }
 
+
+function get_table_columns(mysqli $conn, string $table): array
+{
+    $cols = [];
+    $res = $conn->query("SHOW COLUMNS FROM `{$table}`");
+    while ($row = $res->fetch_assoc()) {
+        $cols[] = $row['Field'];
+    }
+    return $cols;
+}
+
+function restore_archive_year_to_live(mysqli $conn, string $liveTable, string $archiveTable, int $archiveYear): void
+{
+    $liveColumns = get_table_columns($conn, $liveTable);
+    $columnList = implode(', ', array_map(static fn($c) => "`{$c}`", $liveColumns));
+    $sql = "INSERT INTO `{$liveTable}` ({$columnList}) SELECT {$columnList} FROM `{$archiveTable}` WHERE ArchiveYear = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $archiveYear);
+    $stmt->execute();
+    $stmt->close();
+}
+
+function delete_archive_year(mysqli $conn, string $archiveTable, int $archiveYear): void
+{
+    $sql = "DELETE FROM `{$archiveTable}` WHERE ArchiveYear = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $archiveYear);
+    $stmt->execute();
+    $stmt->close();
+}
+
 // Fetch current settings
 $settings = [];
 $settings_sql = "SELECT Setting_Name, Setting_Value FROM admin_settings";
@@ -76,6 +107,17 @@ while ($row = $settings_result->fetch_assoc()) {
 
 $new_software_release = $settings['NewSoftwareRelease'] ?? 0;
 $active_tax_year = (int) ($settings['ActiveTaxYear'] ?? date('Y'));
+$archived_years = [];
+$archiveTableCheck = $conn->query("SHOW TABLES LIKE 'OnboardingArchive'");
+if ($archiveTableCheck && $archiveTableCheck->num_rows > 0) {
+    $archiveYearsResult = $conn->query("SELECT DISTINCT ArchiveYear FROM OnboardingArchive ORDER BY ArchiveYear DESC");
+    if ($archiveYearsResult) {
+        while ($yr = $archiveYearsResult->fetch_assoc()) {
+            $archived_years[] = (int) $yr['ArchiveYear'];
+        }
+    }
+}
+
 
 // Handle Year Rollover / Archive
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['run_year_rollover'])) {
@@ -120,6 +162,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['run_year_rollover'])) 
         }
     }
 }
+
+// Handle Archive Rollback (restore archived year back into active tables)
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['rollback_archive_year'])) {
+    $rollback_year = (int) ($_POST['rollback_year'] ?? 0);
+
+    if ($rollback_year <= 0) {
+        $error_message = 'Please select a valid archived year to roll back.';
+    } elseif (!in_array($rollback_year, $archived_years, true)) {
+        $error_message = 'Selected archived year does not exist.';
+    } else {
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        try {
+            $conn->begin_transaction();
+
+            $tablesToCheck = ['Onboarding', 'OnboardingDetails', 'OnboardingHistory', 'EntitledPrograms', 'Notification'];
+            foreach ($tablesToCheck as $table) {
+                $countResult = $conn->query("SELECT COUNT(*) AS cnt FROM `{$table}`")->fetch_assoc();
+                if ((int) ($countResult['cnt'] ?? 0) > 0) {
+                    throw new RuntimeException("Cannot roll back archive while active table '{$table}' is not empty.");
+                }
+            }
+
+            restore_archive_year_to_live($conn, 'Onboarding', 'OnboardingArchive', $rollback_year);
+            restore_archive_year_to_live($conn, 'OnboardingDetails', 'OnboardingDetailsArchive', $rollback_year);
+            restore_archive_year_to_live($conn, 'OnboardingHistory', 'OnboardingHistoryArchive', $rollback_year);
+            restore_archive_year_to_live($conn, 'EntitledPrograms', 'EntitledProgramsArchive', $rollback_year);
+            restore_archive_year_to_live($conn, 'Notification', 'NotificationArchive', $rollback_year);
+
+            delete_archive_year($conn, 'OnboardingArchive', $rollback_year);
+            delete_archive_year($conn, 'OnboardingDetailsArchive', $rollback_year);
+            delete_archive_year($conn, 'OnboardingHistoryArchive', $rollback_year);
+            delete_archive_year($conn, 'EntitledProgramsArchive', $rollback_year);
+            delete_archive_year($conn, 'NotificationArchive', $rollback_year);
+
+            upsert_setting_value($conn, 'ActiveTaxYear', (string) $rollback_year, (int) $_SESSION['userid']);
+
+            $conn->commit();
+            $active_tax_year = $rollback_year;
+            $success_message = "Archive rollback completed. Restored {$rollback_year} into active tables and removed that year from archives.";
+
+            $archived_years = array_values(array_filter($archived_years, static fn($y) => $y !== $rollback_year));
+        } catch (Throwable $e) {
+            $conn->rollback();
+            $error_message = 'Archive rollback failed: ' . $e->getMessage();
+        }
+    }
+}
+
 
 // Fetch all software programs
 $programs_sql = "SHOW COLUMNS FROM EntitledPrograms LIKE 'prog_%'";
@@ -488,6 +578,30 @@ $conn->close();
 
                     <button type="submit" name="run_year_rollover" class="btn-primary">Run Year Rollover</button>
                     <a href="archived_clients.php" class="btn-secondary" style="display:inline-block; margin-top:10px; text-align:center; width:100%; box-sizing:border-box; text-decoration:none;">View Archived Clients</a>
+                </form>
+
+                <hr style="margin: 22px 0; border: 0; border-top: 1px solid #ead9d6;">
+
+                <div class="warning-banner" style="border-left-color:#b23b2f;">
+                    <h4>Roll Back an Archived Year (Undo Mistake)</h4>
+                    <p>Use this only if rollover was run by mistake. This restores a selected archived year back into active tables and removes that year from the archive records.</p>
+                </div>
+
+                <form method="POST" action="" onsubmit="return confirm('Are you sure you want to roll back this archived year? Active tables must be empty, and the selected year will be removed from archives.');">
+                    <div class="form-group">
+                        <label for="rollback_year">Archived Year to Restore</label>
+                        <select id="rollback_year" name="rollback_year" required>
+                            <option value="">Select archived year</option>
+                            <?php foreach ($archived_years as $archivedYear): ?>
+                                <option value="<?php echo htmlspecialchars((string) $archivedYear); ?>"><?php echo htmlspecialchars((string) $archivedYear); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <button type="submit" name="rollback_archive_year" class="btn-primary" <?php echo empty($archived_years) ? 'disabled' : ''; ?>>Roll Back Archived Year</button>
+                    <?php if (empty($archived_years)): ?>
+                        <p style="margin-top: 8px; color: #6c757d;">No archived years are available to roll back.</p>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
