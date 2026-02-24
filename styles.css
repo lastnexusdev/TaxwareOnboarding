@@ -42,7 +42,22 @@ h3 {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+}
+
+
+.top-menu-brand {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.top-menu-brand img {
+    height: 42px;
+    width: auto;
+    display: block;
 }
 
 .top-menu ul {
@@ -53,6 +68,7 @@ h3 {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .top-menu ul li {
@@ -81,13 +97,13 @@ h3 {
     transform: translateY(-1px);
 }
 
-/* ACTIVE PAGE ó the ONLY highlighted button */
+/* ACTIVE PAGE ‚Äî the ONLY highlighted button */
 .top-menu ul li a.active {
     background: #ffffff;
     color: #7a3a2f;
 }
 
-/* LOGOUT ó red, but NOT ìactiveî */
+/* LOGOUT ‚Äî red, but NOT ‚Äúactive‚Äù */
 .top-menu ul li a[href*="logout"] {
     background: #c0392b;
     color: #fff;

@@ -7,6 +7,9 @@ $currentPage = $currentPage ?? '';
 ?>
 
 <div class="top-menu">
+    <a href="dashboard.php" class="top-menu-brand" aria-label="Taxware Systems Home">
+        <img src="https://kb.taxwaresystems.com/logo.png" alt="Taxware Systems">
+    </a>
     <ul>
         <li>
             <a href="dashboard.php" class="<?= $currentPage === 'dashboard' ? 'active' : '' ?>">

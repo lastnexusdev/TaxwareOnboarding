@@ -393,6 +393,18 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
             width: 100%;
             position: relative;
         }
+        .top-menu-brand {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .top-menu-brand img {
+            height: 42px;
+            width: auto;
+            display: block;
+        }
+
         .top-menu ul {
             list-style-type: none;
             padding: 0;
@@ -930,6 +942,9 @@ $progress_percentage = $total_items > 0 ? ($completed_items / $total_items) * 10
 </head>
 <body>
     <div class="top-menu">
+        <a href="dashboard.php" class="top-menu-brand" aria-label="Taxware Systems Home">
+            <img src="https://kb.taxwaresystems.com/logo.png" alt="Taxware Systems">
+        </a>
         <ul>
             <li><a href="dashboard.php">? Back to Dashboard</a></li>
         </ul>
