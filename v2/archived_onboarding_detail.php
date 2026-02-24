@@ -45,7 +45,14 @@ $stmt->execute();
 $details = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-$stmt = $conn->prepare("SELECT * FROM OnboardingHistoryArchive WHERE ClientID = ? AND ArchiveYear = ? ORDER BY Date DESC, HistoryID DESC");
+$historyOrderClause = 'HistoryID DESC';
+$historyColumnCheck = $conn->query("SHOW COLUMNS FROM OnboardingHistoryArchive LIKE 'ActionTimestamp'");
+if ($historyColumnCheck && $historyColumnCheck->num_rows > 0) {
+    $historyOrderClause = 'ActionTimestamp DESC, HistoryID DESC';
+}
+
+$historySql = "SELECT * FROM OnboardingHistoryArchive WHERE ClientID = ? AND ArchiveYear = ? ORDER BY {$historyOrderClause}";
+$stmt = $conn->prepare($historySql);
 $stmt->bind_param('si', $client_id, $selected_year);
 $stmt->execute();
 $historyRes = $stmt->get_result();
