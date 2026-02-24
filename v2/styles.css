@@ -3579,79 +3579,70 @@ body.page-client-details .tooltip{
             opacity: 1;
         }
 
-
 /* =========================
-   Unified Taxware Theme Overrides
+   Unified Taxware Theme Overrides (non-dashboard pages)
    ========================= */
 :root {
-    --tw-bg: #f3f4f6;
+    --tw-bg: #f4f4f4;
     --tw-surface: #ffffff;
-    --tw-text: #1f2937;
-    --tw-primary: #6a120e;
-    --tw-primary-dark: #4d0d0a;
+    --tw-text: #333333;
+    --tw-primary: #7a3a2f;
+    --tw-primary-dark: #5f2c24;
     --tw-primary-soft: #9e4a3d;
-    --tw-accent: #e9b4b4;
     --tw-border: #d7dbe0;
 }
 
-body {
+body:not(.page-dashboard) {
     background-color: var(--tw-bg);
     color: var(--tw-text);
 }
 
-.top-menu,
-body[class^="page-"] .top-menu {
+body:not(.page-dashboard) .top-menu {
     background: linear-gradient(135deg, var(--tw-primary-soft) 0%, var(--tw-primary) 100%) !important;
 }
 
-.top-menu ul li a.active {
+body:not(.page-dashboard) .top-menu ul li a.active {
     color: var(--tw-primary) !important;
 }
 
-input[type="submit"],
-.btn,
-.btn-primary,
-.upload-link,
-.copy-upload-link-btn,
-button {
+body:not(.page-dashboard) input[type="submit"],
+body:not(.page-dashboard) .btn,
+body:not(.page-dashboard) .btn-primary,
+body:not(.page-dashboard) .upload-link,
+body:not(.page-dashboard) .copy-upload-link-btn,
+body:not(.page-dashboard) button {
     background-color: var(--tw-primary-soft);
     border-color: var(--tw-primary-soft);
 }
 
-input[type="submit"]:hover,
-.btn:hover,
-.btn-primary:hover,
-.upload-link:hover,
-.copy-upload-link-btn:hover,
-button:hover {
+body:not(.page-dashboard) input[type="submit"]:hover,
+body:not(.page-dashboard) .btn:hover,
+body:not(.page-dashboard) .btn-primary:hover,
+body:not(.page-dashboard) .upload-link:hover,
+body:not(.page-dashboard) .copy-upload-link-btn:hover,
+body:not(.page-dashboard) button:hover {
     background-color: var(--tw-primary-dark);
 }
 
-.container,
-.sales-container,
-.dashboard-container,
-.settings-container,
-.reports-container,
-.users-container {
+body:not(.page-dashboard) .container,
+body:not(.page-dashboard) .sales-container,
+body:not(.page-dashboard) .settings-container,
+body:not(.page-dashboard) .reports-container,
+body:not(.page-dashboard) .users-container {
     background-color: var(--tw-surface);
     border: 1px solid var(--tw-border);
 }
 
-.tech-table th,
-table thead th,
-.table th,
-body[class^="page-"] h3 {
+body:not(.page-dashboard) .tech-table th,
+body:not(.page-dashboard) table thead th,
+body:not(.page-dashboard) .table th {
+    background-color: var(--tw-primary) !important;
+    color: #fff !important;
     border-color: var(--tw-primary-soft);
 }
 
-.tech-table th,
-table thead th,
-.table th {
-    background-color: var(--tw-primary) !important;
-    color: #fff !important;
-}
-
-.badge,
-.status-badge {
+body:not(.page-dashboard) .badge,
+body:not(.page-dashboard) .status-badge {
     border-radius: 999px;
 }
+
