@@ -649,7 +649,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
             <span class="close" onclick="closeModal()">&times;</span>
             <h3>Specify Other Software</h3>
             <input type="text" id="other_software" name="other_software" placeholder="Enter software name">
-            <p class="red-bold">? Conversion Not Possible</p>
+            <p class="red-bold">⚠️ Conversion Not Possible</p>
             <button type="button" onclick="submitOtherSoftware()">Submit</button>
         </div>
     </div>

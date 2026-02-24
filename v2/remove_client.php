@@ -235,7 +235,7 @@ while ($client = $clients_result->fetch_assoc()) {
 
         <!-- Warning Banner -->
         <div class="warning-banner">
-            <h4>? Caution: Permanent Action</h4>
+            <h4>⚠️ Caution: Permanent Action</h4>
             <p>Deleting clients will permanently remove all associated data including onboarding details, history records, and entitled programs. This action cannot be undone.</p>
         </div>
 

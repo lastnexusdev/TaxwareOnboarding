@@ -104,7 +104,7 @@ if (!empty($client_id)) {
 </head>
 <body class="page-history">
     <div class="container">
-        <h2>?? Client History Manager</h2>
+        <h2>🕘 Client History Manager</h2>
         
         <?php if (isset($success_message)): ?>
             <div class="message"><?php echo htmlspecialchars($success_message); ?></div>
@@ -116,7 +116,7 @@ if (!empty($client_id)) {
         
         <?php if ($is_admin): ?>
             <div class="warning-banner">
-                <strong>?? Admin Mode Active</strong>
+                <strong>🛡️ Admin Mode Active</strong>
                 You have full access to edit and delete history records. Use with caution!
             </div>
         <?php endif; ?>
@@ -155,7 +155,7 @@ ORDER BY h.ActionTimestamp DESC;</pre>
             <!-- Custom SQL Editor (Admin Only) -->
             <?php if ($is_admin): ?>
                 <div class="sql-editor">
-                    <h3>?? Custom SQL Query Editor</h3>
+                    <h3>🧪 Custom SQL Query Editor</h3>
                     <form method="POST" action="">
                         <input type="hidden" name="client_id" value="<?php echo htmlspecialchars($client_id); ?>">
                         <div class="form-group">
@@ -163,7 +163,7 @@ ORDER BY h.ActionTimestamp DESC;</pre>
                             <textarea name="custom_sql" id="custom_sql" placeholder="Example: SELECT * FROM OnboardingHistory WHERE ClientID = '<?php echo htmlspecialchars($client_id); ?>'"></textarea>
                         </div>
                         <button type="submit" name="execute_sql" class="btn btn-warning" onclick="return confirm('Are you sure you want to execute this SQL query?')">
-                            ? Execute SQL
+                            ▶ Execute SQL
                         </button>
                     </form>
                 </div>
@@ -204,11 +204,11 @@ ORDER BY h.ActionTimestamp DESC;</pre>
                                 <?php if ($is_admin): ?>
                                     <td>
                                         <div class="actions">
-                                            <button class="btn btn-warning" onclick='openEditModal(<?php echo json_encode($row); ?>)'>?? Edit</button>
+                                            <button class="btn btn-warning" onclick='openEditModal(<?php echo json_encode($row); ?>)'>✏️ Edit</button>
                                             <form method="POST" action="" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this history record?');">
                                                 <input type="hidden" name="client_id" value="<?php echo htmlspecialchars($client_id); ?>">
                                                 <input type="hidden" name="history_id" value="<?php echo $row['HistoryID']; ?>">
-                                                <button type="submit" name="delete_history" class="btn btn-danger">??? Delete</button>
+                                                <button type="submit" name="delete_history" class="btn btn-danger">🗑️ Delete</button>
                                             </form>
                                         </div>
                                     </td>
@@ -227,7 +227,7 @@ ORDER BY h.ActionTimestamp DESC;</pre>
             
         <?php else: ?>
             <div style="text-align: center; padding: 60px; background: white; border-radius: 8px;">
-                <h3>?? Please select a client to view their history</h3>
+                <h3>📌 Please select a client to view their history</h3>
             </div>
         <?php endif; ?>
     </div>
@@ -265,8 +265,8 @@ ORDER BY h.ActionTimestamp DESC;</pre>
                     </div>
                     
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" name="update_history" class="btn btn-success">?? Save Changes</button>
-                        <button type="button" class="btn btn-danger" onclick="closeEditModal()">? Cancel</button>
+                        <button type="submit" name="update_history" class="btn btn-success">💾 Save Changes</button>
+                        <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancel</button>
                     </div>
                 </form>
             </div>
