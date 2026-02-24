@@ -368,19 +368,39 @@ $stats = $stats_result->fetch_assoc();
                     }
                 }
 
-                // Sort clients so completed entries are pushed to the bottom.
+                // Sort clients by dashboard priority:
+                // 1) Stalled first, 2) Not Started, 3) In Progress (by progress), 4) Completed, 5) Cancelled last.
                 usort($clients, function($a, $b) {
-                    $a_completed = (float)($a['Progress'] ?? 0) >= 100;
-                    $b_completed = (float)($b['Progress'] ?? 0) >= 100;
+                    $get_rank = function($client) {
+                        if (!empty($client['Cancelled'])) {
+                            return 5;
+                        }
+                        if (!empty($client['Stalled'])) {
+                            return 1;
+                        }
 
-                    if ($a_completed !== $b_completed) {
-                        return $a_completed ? 1 : -1;
+                        $progress = (float)($client['Progress'] ?? 0);
+                        if ($progress <= 0) {
+                            return 2;
+                        }
+                        if ($progress < 100) {
+                            return 3;
+                        }
+                        return 4;
+                    };
+
+                    $a_rank = $get_rank($a);
+                    $b_rank = $get_rank($b);
+                    if ($a_rank !== $b_rank) {
+                        return $a_rank <=> $b_rank;
                     }
 
-                    // Keep non-completed clients ordered by progress (highest first).
-                    $progress_compare = (float)($b['Progress'] ?? 0) <=> (float)($a['Progress'] ?? 0);
-                    if ($progress_compare !== 0) {
-                        return $progress_compare;
+                    // For in-progress clients, order by progress (highest first).
+                    if ($a_rank === 3) {
+                        $progress_compare = (float)($b['Progress'] ?? 0) <=> (float)($a['Progress'] ?? 0);
+                        if ($progress_compare !== 0) {
+                            return $progress_compare;
+                        }
                     }
 
                     return strcasecmp((string)($a['ClientName'] ?? ''), (string)($b['ClientName'] ?? ''));
