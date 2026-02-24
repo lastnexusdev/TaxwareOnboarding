@@ -49,7 +49,22 @@ h3 {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.top-menu-logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    flex: 0 0 auto;
+}
+
+.top-menu-logo img {
+    height: 34px;
+    width: auto;
+    display: block;
 }
 
 .top-menu ul {
@@ -60,6 +75,8 @@ h3 {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1 1 auto;
 }
 
 .top-menu ul li {
@@ -103,6 +120,19 @@ h3 {
 .top-menu ul li a[href*="logout"]:hover {
     background: #a93226;
     transform: none;
+}
+
+
+@media (max-width: 900px) {
+    .top-menu {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .top-menu ul {
+        justify-content: flex-start;
+        width: 100%;
+    }
 }
 
 /* =========================
