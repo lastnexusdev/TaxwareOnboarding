@@ -87,6 +87,31 @@ if ($packages_result) {
 // Success message variable
 $success_message = '';
 
+function ensure_paygo_column(mysqli $conn): bool {
+    $has_paygo_column = false;
+    if ($paygo_col_result = $conn->query("SHOW COLUMNS FROM Onboarding LIKE 'PayGo'")) {
+        $has_paygo_column = $paygo_col_result->num_rows > 0;
+        $paygo_col_result->free();
+    }
+
+    if ($has_paygo_column) {
+        return true;
+    }
+
+    // Auto-heal schema so PayGo can persist without a manual SQL step.
+    $alter_sql = "ALTER TABLE Onboarding ADD COLUMN PayGo VARCHAR(3) NOT NULL DEFAULT 'No' AFTER BankEnrollment";
+    if (!$conn->query($alter_sql)) {
+        return false;
+    }
+
+    if ($paygo_col_result = $conn->query("SHOW COLUMNS FROM Onboarding LIKE 'PayGo'")) {
+        $has_paygo_column = $paygo_col_result->num_rows > 0;
+        $paygo_col_result->free();
+    }
+
+    return $has_paygo_column;
+}
+
 // Handle form submission for adding clients
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
     $date_added       = $_POST['date_added'] ?? date('Y-m-d');
@@ -187,13 +212,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
 
     // Insert client into Onboarding
     if (empty($error_message)) {
-    $has_paygo_column = false;
-    if ($paygo_col_result = $conn->query("SHOW COLUMNS FROM Onboarding LIKE 'PayGo'")) {
-        $has_paygo_column = $paygo_col_result->num_rows > 0;
-        $paygo_col_result->free();
+    $has_paygo_column = ensure_paygo_column($conn);
+    if (!$has_paygo_column && $paygo === 'Yes') {
+        $error_message = "Unable to save PayGo right now because the PayGo database column could not be created automatically. Please contact admin to run the PayGo migration.";
     }
 
-    if ($has_paygo_column) {
+    if (empty($error_message) && $has_paygo_column) {
         $sql = "INSERT INTO Onboarding 
             (DateAdded, ClientID, ClientName, AssignedTech, SalesRep, Email, PhoneNumber, PreviousSoftware, ConvertionNeeded, Spanish, BankEnrollment, PayGo, Package, ReadyToCall, UploadToken) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
