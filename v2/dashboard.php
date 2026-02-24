@@ -130,28 +130,16 @@ $stats = $stats_result->fetch_assoc();
             }
         }
 
-        function searchClientById() {
-            const input = document.getElementById('clientSearchInput');
-            const query = (input ? input.value : '').trim().toLowerCase();
-            const status = document.getElementById('clientSearchStatus');
+        let currentSearchResults = [];
+        let currentSearchIndex = -1;
 
+        function clearSearchHighlights() {
             document.querySelectorAll('.tech-table tbody tr.client-row').forEach((row) => {
-                row.classList.remove('client-search-hit');
+                row.classList.remove('client-search-hit', 'client-search-active');
             });
+        }
 
-            if (!query) {
-                if (status) status.textContent = 'Enter a Client ID to search.';
-                return;
-            }
-
-            const allRows = Array.from(document.querySelectorAll('.tech-table tbody tr.client-row'));
-            const match = allRows.find((row) => (row.getAttribute('data-client-id') || '').toLowerCase() === query);
-
-            if (!match) {
-                if (status) status.textContent = 'No client found for ID: ' + query;
-                return;
-            }
-
+        function revealMatchRow(match) {
             const techBox = match.closest('.tech-box');
             if (techBox) {
                 techBox.classList.remove('collapsed');
@@ -167,10 +155,72 @@ $stats = $stats_result->fetch_assoc();
                     saveCollapsedTechs(collapsedMap);
                 }
             }
+        }
 
-            match.classList.add('client-search-hit');
-            match.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            if (status) status.textContent = 'Found Client ID: ' + match.getAttribute('data-client-id');
+        function activateSearchResult(index) {
+            if (!currentSearchResults.length) return;
+            currentSearchIndex = (index + currentSearchResults.length) % currentSearchResults.length;
+            const status = document.getElementById('clientSearchStatus');
+
+            currentSearchResults.forEach((row) => row.classList.remove('client-search-active'));
+            const active = currentSearchResults[currentSearchIndex];
+            revealMatchRow(active);
+            active.classList.add('client-search-active');
+            active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            if (status) {
+                status.textContent = `Match ${currentSearchIndex + 1} of ${currentSearchResults.length}: ${active.getAttribute('data-client-id')}`;
+            }
+        }
+
+        function searchClientById(progressive = false) {
+            const input = document.getElementById('clientSearchInput');
+            const query = (input ? input.value : '').trim().toLowerCase();
+            const status = document.getElementById('clientSearchStatus');
+
+            clearSearchHighlights();
+            currentSearchResults = [];
+            currentSearchIndex = -1;
+
+            if (!query) {
+                if (status) status.textContent = 'Type to search Client ID progressively.';
+                return;
+            }
+
+            const allRows = Array.from(document.querySelectorAll('.tech-table tbody tr.client-row'));
+
+            const exact = allRows.filter((row) => (row.getAttribute('data-client-id') || '').toLowerCase() === query);
+            const starts = allRows.filter((row) => {
+                const id = (row.getAttribute('data-client-id') || '').toLowerCase();
+                return id.startsWith(query) && id !== query;
+            });
+            const contains = allRows.filter((row) => {
+                const id = (row.getAttribute('data-client-id') || '').toLowerCase();
+                return id.includes(query) && !id.startsWith(query);
+            });
+
+            currentSearchResults = [...exact, ...starts, ...contains];
+
+            if (!currentSearchResults.length) {
+                if (status) status.textContent = 'No client found for ID: ' + query;
+                return;
+            }
+
+            currentSearchResults.forEach((row) => {
+                revealMatchRow(row);
+                row.classList.add('client-search-hit');
+            });
+
+            activateSearchResult(0);
+
+            if (progressive && status) {
+                status.textContent = `Found ${currentSearchResults.length} match(es). Showing best match first.`;
+            }
+        }
+
+        function nextSearchResult() {
+            if (!currentSearchResults.length) return;
+            activateSearchResult(currentSearchIndex + 1);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -178,10 +228,17 @@ $stats = $stats_result->fetch_assoc();
 
             const input = document.getElementById('clientSearchInput');
             if (input) {
+                input.addEventListener('input', function () {
+                    searchClientById(true);
+                });
+
                 input.addEventListener('keydown', function (e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         searchClientById();
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        nextSearchResult();
                     }
                 });
             }
@@ -197,8 +254,9 @@ $stats = $stats_result->fetch_assoc();
         <h2>Tech Dashboard</h2>
 
         <div class="dashboard-search-bar">
-            <input type="text" id="clientSearchInput" placeholder="Search Client ID (exact match)">
+            <input type="text" id="clientSearchInput" placeholder="Search Client ID (progressive)">
             <button type="button" class="btn" onclick="searchClientById()">Search ID</button>
+            <button type="button" class="btn" onclick="nextSearchResult()">Next Match</button>
             <span id="clientSearchStatus" class="search-status">Enter a Client ID to search.</span>
         </div>
 
