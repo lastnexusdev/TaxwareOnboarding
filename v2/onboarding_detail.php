@@ -31,6 +31,50 @@ if (!$client) {
     exit;
 }
 
+function default_data_source_paths(): array
+{
+    return [
+        'ATX' => 'C:\\ProgramData\\Wolters Kluwer\\ATX 2025 Server\\ATX 2025 Files\\FormsetData\\',
+        'Crosslink' => 'C:\\xlink26\\',
+        'Lacerte' => 'C:\\Lacerte\\25tax\\',
+        'ProSeries' => 'C:\\ProWin25\\25data\\',
+        'TaxAct' => "C:\\TaxACT\\TaxACT 2025 Preparer's Edition\\Client Data\\",
+        'TaxSlayer' => 'C:\\TaxSlayer\\2025Net\\Data\\',
+        'TaxWise' => 'C:\\UTS25\\Users\\',
+        'UltraTax' => 'C:\\WinCSI\\',
+        'Drake' => 'C:\\Drake25\\DT\\'
+    ];
+}
+
+$data_source_paths = default_data_source_paths();
+$data_paths_stmt = $conn->prepare("SELECT Setting_Value FROM admin_settings WHERE Setting_Name = 'DataSourcePaths' LIMIT 1");
+$data_paths_stmt->execute();
+$data_paths_row = $data_paths_stmt->get_result()->fetch_assoc();
+$data_paths_stmt->close();
+
+if (!empty($data_paths_row['Setting_Value'])) {
+    $decoded_paths = json_decode((string) $data_paths_row['Setting_Value'], true);
+    if (is_array($decoded_paths)) {
+        $data_source_paths = [];
+        foreach ($decoded_paths as $software => $path) {
+            $software_name = trim(ltrim((string) $software, '*'));
+            $path_value = trim((string) $path);
+            if ($software_name !== '' && $path_value !== '') {
+                $data_source_paths[$software_name] = $path_value;
+            }
+        }
+    }
+}
+
+$previous_software = trim((string) ($client['PreviousSoftware'] ?? ''));
+$grab_data_path = '';
+foreach ($data_source_paths as $software => $path) {
+    if (strcasecmp(trim(ltrim((string) $software, '*')), $previous_software) === 0) {
+        $grab_data_path = (string) $path;
+        break;
+    }
+}
+
 // --- Role and edit access checks ---
 $current_user_id = (int) ($_SESSION['userid'] ?? $_SESSION['user_id'] ?? 0);
 $is_assigned_tech = (string) $client['AssignedTech'] === (string) $current_user_id;
@@ -487,6 +531,10 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
     <div class="container">
         <div class="page-header">
             <h2>Onboarding Details for <?php echo htmlspecialchars($client['ClientName']); ?></h2>
+            <p style="margin-top: 8px; margin-bottom: 0; color: #f5e9e7; font-size: 14px;">
+                <strong>Grab Data From:</strong>
+                <?php echo $grab_data_path !== '' ? htmlspecialchars($grab_data_path) : 'No path configured for ' . htmlspecialchars($previous_software ?: 'this software'); ?>
+            </p>
             <div style="margin-top: 8px;">
                 <?php if ($client['Spanish'] == 'Yes'): ?>
                     <span class="badge badge-spanish">Spanish Speaker</span>

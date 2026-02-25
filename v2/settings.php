@@ -161,6 +161,21 @@ function delete_archive_year(mysqli $conn, string $archiveTable, int $archiveYea
     $stmt->close();
 }
 
+function default_data_source_paths(): array
+{
+    return [
+        'ATX' => 'C:\\ProgramData\\Wolters Kluwer\\ATX 2025 Server\\ATX 2025 Files\\FormsetData\\',
+        'Crosslink' => 'C:\\xlink26\\',
+        'Lacerte' => 'C:\\Lacerte\\25tax\\',
+        'ProSeries' => 'C:\\ProWin25\\25data\\',
+        'TaxAct' => "C:\\TaxACT\\TaxACT 2025 Preparer's Edition\\Client Data\\",
+        'TaxSlayer' => 'C:\\TaxSlayer\\2025Net\\Data\\',
+        'TaxWise' => 'C:\\UTS25\\Users\\',
+        'UltraTax' => 'C:\\WinCSI\\',
+        'Drake' => 'C:\\Drake25\\DT\\'
+    ];
+}
+
 // Fetch current settings
 $settings = [];
 $settings_sql = "SELECT Setting_Name, Setting_Value FROM admin_settings";
@@ -171,6 +186,23 @@ while ($row = $settings_result->fetch_assoc()) {
 
 $new_software_release = $settings['NewSoftwareRelease'] ?? 0;
 $active_tax_year = (int) ($settings['ActiveTaxYear'] ?? date('Y'));
+
+$data_source_paths = default_data_source_paths();
+$data_source_paths_json = $settings['DataSourcePaths'] ?? '';
+if ($data_source_paths_json !== '') {
+    $decoded_paths = json_decode($data_source_paths_json, true);
+    if (is_array($decoded_paths)) {
+        $data_source_paths = [];
+        foreach ($decoded_paths as $software => $path) {
+            $software_name = trim(ltrim((string) $software, '*'));
+            $path_value = trim((string) $path);
+            if ($software_name !== '' && $path_value !== '') {
+                $data_source_paths[$software_name] = $path_value;
+            }
+        }
+    }
+}
+
 $archived_years = [];
 $archiveTableCheck = $conn->query("SHOW TABLES LIKE 'OnboardingArchive'");
 if ($archiveTableCheck && $archiveTableCheck->num_rows > 0) {
@@ -426,6 +458,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_package'])) {
     exit;
 }
 
+// Handle Data Source Paths Update
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_data_source_paths'])) {
+    $software_names = $_POST['software_names'] ?? [];
+    $software_paths = $_POST['software_paths'] ?? [];
+
+    $updated_paths = [];
+    foreach ($software_names as $index => $software_name_raw) {
+        $software_name = trim(ltrim((string) $software_name_raw, '*'));
+        $software_path = trim((string) ($software_paths[$index] ?? ''));
+        if ($software_name !== '' && $software_path !== '') {
+            $updated_paths[$software_name] = $software_path;
+        }
+    }
+
+    upsert_setting_value(
+        $conn,
+        'DataSourcePaths',
+        json_encode($updated_paths, JSON_UNESCAPED_SLASHES),
+        (int) $_SESSION['userid']
+    );
+
+    $data_source_paths = $updated_paths;
+    $settings['DataSourcePaths'] = json_encode($updated_paths, JSON_UNESCAPED_SLASHES);
+    $success_message = 'Data source paths updated successfully.';
+}
+
 // Handle Add New Program
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_program'])) {
     $program_name = trim($_POST['program_name']);
@@ -529,6 +587,28 @@ $conn->close();
         function confirmDelete(packageName) {
             return confirm('Are you sure you want to delete the package "' + packageName + '"?\n\nThis action cannot be undone.');
         }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function addDataSourceRow(name = '', path = '') {
+            const tbody = document.getElementById('data-source-rows');
+            if (!tbody) return;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" name="software_names[]" placeholder="Software name" value="${escapeHtml(name)}" required></td>
+                <td><input type="text" name="software_paths[]" placeholder="C:\\Path\\Here\\" value="${escapeHtml(path)}" required></td>
+                <td style="width: 80px;"><button type="button" class="btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
     </script>
 </head>
 <body class="page-settings">
@@ -617,6 +697,41 @@ $conn->close();
                     <button type="submit" name="update_system_settings" class="btn-primary">
                         Update System Preferences
                     </button>
+                </form>
+            </div>
+
+            <!-- Data Source Paths -->
+            <div class="settings-card">
+                <h3><span class="icon" aria-hidden="true">🗃️</span> Data Source Paths</h3>
+                <div class="info-banner">
+                    <h4>Grab Data From Paths</h4>
+                    <p>Manage software-to-folder mappings used on onboarding details. You can edit, add, or remove paths.</p>
+                </div>
+
+                <form method="POST" action="">
+                    <div style="overflow-x:auto;">
+                        <table class="tech-table" style="margin-bottom: 15px;">
+                            <thead>
+                                <tr>
+                                    <th>Software</th>
+                                    <th>Data Path</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-source-rows">
+                                <?php foreach ($data_source_paths as $softwareName => $softwarePath): ?>
+                                    <tr>
+                                        <td><input type="text" name="software_names[]" value="<?php echo htmlspecialchars($softwareName); ?>" required></td>
+                                        <td><input type="text" name="software_paths[]" value="<?php echo htmlspecialchars($softwarePath); ?>" required></td>
+                                        <td style="width: 80px;"><button type="button" class="btn-danger" onclick="this.closest('tr').remove()">Remove</button></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button type="button" class="btn-secondary" onclick="addDataSourceRow()">Add Path</button>
+                    <button type="submit" name="update_data_source_paths" class="btn-primary" style="margin-top:10px;">Save Data Source Paths</button>
                 </form>
             </div>
 
