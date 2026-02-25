@@ -51,6 +51,25 @@ function upsert_setting_value(mysqli $conn, string $name, string $value, int $us
     }
 }
 
+function ensure_setting_value_longtext(mysqli $conn): void
+{
+    $column = $conn->query("SHOW COLUMNS FROM admin_settings LIKE 'Setting_Value'");
+    if (!$column || $column->num_rows === 0) {
+        return;
+    }
+
+    $columnInfo = $column->fetch_assoc();
+    $column->free();
+
+    $currentType = strtolower((string) ($columnInfo['Type'] ?? ''));
+    if ($currentType === 'longtext') {
+        return;
+    }
+
+    $nullClause = (($columnInfo['Null'] ?? 'YES') === 'NO') ? 'NOT NULL' : 'NULL';
+    $conn->query("ALTER TABLE admin_settings MODIFY COLUMN Setting_Value LONGTEXT {$nullClause}");
+}
+
 function build_column_definition(array $column): string
 {
     $definition = "`{$column['Field']}` {$column['Type']}";
@@ -471,6 +490,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_data_source_pat
             $updated_paths[$software_name] = $software_path;
         }
     }
+
+    ensure_setting_value_longtext($conn);
 
     upsert_setting_value(
         $conn,

@@ -545,10 +545,12 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
                     <span class="badge badge-paygo">PayGo</span>
                 <?php endif; ?>
             </div>
-            <p class="grab-data-from-line">
-                <strong>Grab Data From:</strong>
-                <?php echo $grab_data_path !== '' ? htmlspecialchars($grab_data_path) : 'No path configured for ' . htmlspecialchars($previous_software ?: 'this software'); ?>
-            </p>
+            <?php if (($client['ConvertionNeeded'] ?? 'No') === 'Yes'): ?>
+                <p class="grab-data-from-line">
+                    <strong>Grab Data From:</strong>
+                    <?php echo $grab_data_path !== '' ? htmlspecialchars($grab_data_path) : 'No path configured for ' . htmlspecialchars($previous_software ?: 'this software'); ?>
+                </p>
+            <?php endif; ?>
             <?php if ($is_other_tech && !$is_temporarily_unlocked): ?>
                 <form method="POST" action="" style="margin-top: 12px;">
                     <button type="submit" name="unlock_client" class="btn" onclick="return confirmUnlock();">
