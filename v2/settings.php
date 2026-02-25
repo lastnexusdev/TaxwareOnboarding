@@ -51,9 +51,49 @@ function upsert_setting_value(mysqli $conn, string $name, string $value, int $us
     }
 }
 
+function build_column_definition(array $column): string
+{
+    $definition = "`{$column['Field']}` {$column['Type']}";
+    $definition .= ($column['Null'] === 'NO') ? ' NOT NULL' : ' NULL';
+
+    if (array_key_exists('Default', $column) && $column['Default'] !== null) {
+        $default = (string) $column['Default'];
+        $definition .= ' DEFAULT ' . (strtoupper($default) === 'CURRENT_TIMESTAMP' ? 'CURRENT_TIMESTAMP' : "'" . addslashes($default) . "'");
+    }
+
+    if (!empty($column['Extra'])) {
+        $definition .= ' ' . $column['Extra'];
+    }
+
+    return $definition;
+}
+
 function ensure_archive_table(mysqli $conn, string $sourceTable, string $archiveTable): void
 {
     $conn->query("CREATE TABLE IF NOT EXISTS `{$archiveTable}` LIKE `{$sourceTable}`");
+
+    $sourceColumns = [];
+    if ($sourceColumnsResult = $conn->query("SHOW COLUMNS FROM `{$sourceTable}`")) {
+        while ($row = $sourceColumnsResult->fetch_assoc()) {
+            $sourceColumns[$row['Field']] = $row;
+        }
+        $sourceColumnsResult->free();
+    }
+
+    $archiveColumns = [];
+    if ($archiveColumnsResult = $conn->query("SHOW COLUMNS FROM `{$archiveTable}`")) {
+        while ($row = $archiveColumnsResult->fetch_assoc()) {
+            $archiveColumns[$row['Field']] = true;
+        }
+        $archiveColumnsResult->free();
+    }
+
+    foreach ($sourceColumns as $field => $column) {
+        if (!isset($archiveColumns[$field])) {
+            $definition = build_column_definition($column);
+            $conn->query("ALTER TABLE `{$archiveTable}` ADD COLUMN {$definition}");
+        }
+    }
 
     $columnCheck = $conn->query("SHOW COLUMNS FROM `{$archiveTable}` LIKE 'ArchiveYear'");
     if ($columnCheck && $columnCheck->num_rows === 0) {
@@ -66,6 +106,30 @@ function ensure_archive_table(mysqli $conn, string $sourceTable, string $archive
     }
 }
 
+function archive_live_table_year(mysqli $conn, string $sourceTable, string $archiveTable, int $archiveYear): void
+{
+    $sourceColumns = get_table_columns($conn, $sourceTable);
+    $archiveColumns = get_table_columns($conn, $archiveTable);
+
+    $archiveLookup = array_flip($archiveColumns);
+    $sharedColumns = [];
+    foreach ($sourceColumns as $column) {
+        if (isset($archiveLookup[$column])) {
+            $sharedColumns[] = $column;
+        }
+    }
+
+    if (empty($sharedColumns)) {
+        throw new RuntimeException("No shared columns found for archiving {$sourceTable}.");
+    }
+
+    $sharedColumnList = implode(', ', array_map(static fn($c) => "`{$c}`", $sharedColumns));
+    $sql = "INSERT INTO `{$archiveTable}` ({$sharedColumnList}, `ArchiveYear`, `ArchivedAt`) SELECT {$sharedColumnList}, ?, NOW() FROM `{$sourceTable}`";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $archiveYear);
+    $stmt->execute();
+    $stmt->close();
+}
 
 function get_table_columns(mysqli $conn, string $table): array
 {
@@ -138,11 +202,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['run_year_rollover'])) 
             ensure_archive_table($conn, 'Notification', 'NotificationArchive');
 
             // Archive current year data
-            $conn->query("INSERT INTO OnboardingArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM Onboarding");
-            $conn->query("INSERT INTO OnboardingDetailsArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM OnboardingDetails");
-            $conn->query("INSERT INTO OnboardingHistoryArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM OnboardingHistory");
-            $conn->query("INSERT INTO EntitledProgramsArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM EntitledPrograms");
-            $conn->query("INSERT INTO NotificationArchive SELECT *, {$active_tax_year} AS ArchiveYear, NOW() AS ArchivedAt FROM Notification");
+            archive_live_table_year($conn, 'Onboarding', 'OnboardingArchive', $active_tax_year);
+            archive_live_table_year($conn, 'OnboardingDetails', 'OnboardingDetailsArchive', $active_tax_year);
+            archive_live_table_year($conn, 'OnboardingHistory', 'OnboardingHistoryArchive', $active_tax_year);
+            archive_live_table_year($conn, 'EntitledPrograms', 'EntitledProgramsArchive', $active_tax_year);
+            archive_live_table_year($conn, 'Notification', 'NotificationArchive', $active_tax_year);
 
             // Clear active-year grids/tables for new year start
             $conn->query("DELETE FROM Notification");
