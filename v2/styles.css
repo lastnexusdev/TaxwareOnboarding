@@ -1605,6 +1605,16 @@ body.page-onboarding-detail .history{
             color: white;
         }
 
+        body.page-onboarding-detail .grab-data-from-line{
+            margin-top: 10px;
+            margin-bottom: 0;
+            font-size: 14px;
+            color: #5a2b23;
+        }
+
+        body.page-onboarding-detail .grab-data-from-line strong{
+            color: #8b4513;
+        }
 
         body.page-onboarding-detail .badge-paygo{
             background-color: #6f42c1;

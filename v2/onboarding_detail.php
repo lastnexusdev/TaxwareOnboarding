@@ -531,10 +531,6 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
     <div class="container">
         <div class="page-header">
             <h2>Onboarding Details for <?php echo htmlspecialchars($client['ClientName']); ?></h2>
-            <p style="margin-top: 8px; margin-bottom: 0; color: #f5e9e7; font-size: 14px;">
-                <strong>Grab Data From:</strong>
-                <?php echo $grab_data_path !== '' ? htmlspecialchars($grab_data_path) : 'No path configured for ' . htmlspecialchars($previous_software ?: 'this software'); ?>
-            </p>
             <div style="margin-top: 8px;">
                 <?php if ($client['Spanish'] == 'Yes'): ?>
                     <span class="badge badge-spanish">Spanish Speaker</span>
@@ -549,6 +545,10 @@ $progress_percentage = isset($client['Progress']) ? (float) $client['Progress'] 
                     <span class="badge badge-paygo">PayGo</span>
                 <?php endif; ?>
             </div>
+            <p class="grab-data-from-line">
+                <strong>Grab Data From:</strong>
+                <?php echo $grab_data_path !== '' ? htmlspecialchars($grab_data_path) : 'No path configured for ' . htmlspecialchars($previous_software ?: 'this software'); ?>
+            </p>
             <?php if ($is_other_tech && !$is_temporarily_unlocked): ?>
                 <form method="POST" action="" style="margin-top: 12px;">
                     <button type="submit" name="unlock_client" class="btn" onclick="return confirmUnlock();">
