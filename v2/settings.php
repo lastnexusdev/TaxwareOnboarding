@@ -760,44 +760,52 @@ $conn->close();
             <div class="settings-card settings-card-wide">
                 <h3><span class="icon" aria-hidden="true">🗂️</span> Year Rollover</h3>
 
-                <div class="warning-banner">
-                    <h4>Archive Current Year and Start New Year</h4>
-                    <p>This archives all active clients and related records, clears current onboarding grids, and automatically moves the system into the next tax year.</p>
+                <div class="rollover-columns">
+                    <section class="rollover-panel">
+                        <div class="warning-banner">
+                            <h4>Archive Current Year and Start New Year</h4>
+                            <p>This archives all active clients and related records, clears current onboarding grids, and automatically moves the system into the next tax year.</p>
+                        </div>
+
+                        <form method="POST" action="" onsubmit="return confirm('Are you sure you want to archive the current year and start a new year? This will clear active client grids.');">
+                            <div class="form-group">
+                                <label>Current Active Tax Year</label>
+                                <input type="text" value="<?php echo htmlspecialchars((string) $active_tax_year); ?>" disabled>
+                            </div>
+
+                            <div class="settings-action-row">
+                                <button type="submit" name="run_year_rollover" class="btn-primary btn-inline">Run Year Rollover</button>
+                                <a href="archived_clients.php" class="btn-secondary btn-inline" style="text-align:center; text-decoration:none;">View Archived Clients</a>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="rollover-panel">
+                        <div class="warning-banner" style="border-left-color:#b23b2f;">
+                            <h4>Roll Back an Archived Year (Undo Mistake)</h4>
+                            <p>Use this only if rollover was run by mistake. This restores a selected archived year back into active tables and removes that year from the archive records.</p>
+                        </div>
+
+                        <form method="POST" action="" onsubmit="return confirm('Are you sure you want to roll back this archived year? Active tables must be empty, and the selected year will be removed from archives.');">
+                            <div class="form-group">
+                                <label for="rollback_year">Archived Year to Restore</label>
+                                <select id="rollback_year" name="rollback_year" required>
+                                    <option value="">Select archived year</option>
+                                    <?php foreach ($archived_years as $archivedYear): ?>
+                                        <option value="<?php echo htmlspecialchars((string) $archivedYear); ?>"><?php echo htmlspecialchars((string) $archivedYear); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="settings-action-row">
+                                <button type="submit" name="rollback_archive_year" class="btn-primary btn-inline" <?php echo empty($archived_years) ? 'disabled' : ''; ?>>Roll Back Archived Year</button>
+                            </div>
+                            <?php if (empty($archived_years)): ?>
+                                <p style="margin-top: 8px; color: #6c757d;">No archived years are available to roll back.</p>
+                            <?php endif; ?>
+                        </form>
+                    </section>
                 </div>
-
-                <form method="POST" action="" onsubmit="return confirm('Are you sure you want to archive the current year and start a new year? This will clear active client grids.');">
-                    <div class="form-group">
-                        <label>Current Active Tax Year</label>
-                        <input type="text" value="<?php echo htmlspecialchars((string) $active_tax_year); ?>" disabled>
-                    </div>
-
-                    <button type="submit" name="run_year_rollover" class="btn-primary">Run Year Rollover</button>
-                    <a href="archived_clients.php" class="btn-secondary" style="display:inline-block; margin-top:10px; text-align:center; width:100%; box-sizing:border-box; text-decoration:none;">View Archived Clients</a>
-                </form>
-
-                <hr style="margin: 22px 0; border: 0; border-top: 1px solid #ead9d6;">
-
-                <div class="warning-banner" style="border-left-color:#b23b2f;">
-                    <h4>Roll Back an Archived Year (Undo Mistake)</h4>
-                    <p>Use this only if rollover was run by mistake. This restores a selected archived year back into active tables and removes that year from the archive records.</p>
-                </div>
-
-                <form method="POST" action="" onsubmit="return confirm('Are you sure you want to roll back this archived year? Active tables must be empty, and the selected year will be removed from archives.');">
-                    <div class="form-group">
-                        <label for="rollback_year">Archived Year to Restore</label>
-                        <select id="rollback_year" name="rollback_year" required>
-                            <option value="">Select archived year</option>
-                            <?php foreach ($archived_years as $archivedYear): ?>
-                                <option value="<?php echo htmlspecialchars((string) $archivedYear); ?>"><?php echo htmlspecialchars((string) $archivedYear); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <button type="submit" name="rollback_archive_year" class="btn-primary" <?php echo empty($archived_years) ? 'disabled' : ''; ?>>Roll Back Archived Year</button>
-                    <?php if (empty($archived_years)): ?>
-                        <p style="margin-top: 8px; color: #6c757d;">No archived years are available to roll back.</p>
-                    <?php endif; ?>
-                </form>
             </div>
         </div>
 
