@@ -346,6 +346,61 @@ if ($packages_result) {
     }
 }
 
+function recalculate_all_client_progress(mysqli $conn, int $new_software_release): void
+{
+    $clients_sql = "SELECT ClientID, ConvertionNeeded, BankEnrollment FROM Onboarding";
+    $clients_result = $conn->query($clients_sql);
+
+    while ($client = $clients_result->fetch_assoc()) {
+        $client_id = $client['ClientID'];
+
+        $client_sql = "SELECT * FROM Onboarding WHERE ClientID = ?";
+        $stmt = $conn->prepare($client_sql);
+        $stmt->bind_param('s', $client_id);
+        $stmt->execute();
+        $client_result = $stmt->get_result();
+        $client_data = $client_result->fetch_assoc();
+        $stmt->close();
+
+        $checklist_items = [
+            'ConfirmContactInfo', 'ReviewRequirements', 'ScheduleAppointment',
+            'DownloadSoftware', 'InformClient', 'StartInstallation',
+            'EnterUserID', 'ConfigureSettings', 'ManageUserAccounts', 'RunSoftware',
+            'ProvideWalkthrough', 'DemonstrateTasks', 'ContactSupport', 'OfferResources',
+            'ProvideTrainingInfo', 'ScheduleFollowUp'
+        ];
+
+        if (($client['ConvertionNeeded'] ?? 'No') === 'Yes') {
+            $checklist_items = array_merge($checklist_items, ['VerifyPlanData', 'ExecuteConversion', 'VerifyIntegrity', 'TransferSetupData']);
+        }
+
+        if (($client['BankEnrollment'] ?? 'No') === 'Yes') {
+            $checklist_items[] = 'CompleteBankEnrollment';
+        }
+
+        if ($new_software_release === 1) {
+            $checklist_items[] = 'InstalledNewVersion';
+        }
+
+        $total_items = count($checklist_items);
+        $completed_items = 0;
+
+        foreach ($checklist_items as $item) {
+            if (isset($client_data[$item]) && $client_data[$item]) {
+                $completed_items++;
+            }
+        }
+
+        $progress_percentage = $total_items > 0 ? (($completed_items / $total_items) * 100) : 0;
+
+        $update_progress_sql = "UPDATE Onboarding SET Progress = ? WHERE ClientID = ?";
+        $stmt = $conn->prepare($update_progress_sql);
+        $stmt->bind_param('ds', $progress_percentage, $client_id);
+        $stmt->execute();
+        $stmt->close();
+    }
+}
+
 // Handle New Software Release Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_software_release'])) {
     $new_software_release = isset($_POST['new_software_release']) ? intval($_POST['new_software_release']) : 0;
@@ -369,62 +424,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_software_releas
         $stmt->close();
     }
 
-    // Update progress for all clients
-    $clients_sql = "SELECT ClientID, ConvertionNeeded, BankEnrollment FROM Onboarding";
-    $clients_result = $conn->query($clients_sql);
-    
-    while ($client = $clients_result->fetch_assoc()) {
-        $client_id = $client['ClientID'];
-        
-        // Fetch client checklist status
-        $client_sql = "SELECT * FROM Onboarding WHERE ClientID = ?";
-        $stmt = $conn->prepare($client_sql);
-        $stmt->bind_param('s', $client_id);
-        $stmt->execute();
-        $client_result = $stmt->get_result();
-        $client_data = $client_result->fetch_assoc();
-        $stmt->close();
-
-        // Define base checklist items
-        $checklist_items = [
-            'ConfirmContactInfo', 'ReviewRequirements', 'ScheduleAppointment',
-            'DownloadSoftware', 'InformClient', 'StartInstallation',
-            'EnterUserID', 'ConfigureSettings', 'ManageUserAccounts', 'RunSoftware',
-            'ProvideWalkthrough', 'DemonstrateTasks', 'ContactSupport', 'OfferResources', 
-            'ProvideTrainingInfo', 'ScheduleFollowUp'
-        ];
-
-        if ($client['ConvertionNeeded'] === 'Yes') {
-            $checklist_items = array_merge($checklist_items, ['VerifyPlanData', 'ExecuteConversion', 'VerifyIntegrity', 'TransferSetupData']);
-        }
-
-        if ($client['BankEnrollment'] === 'Yes') {
-            $checklist_items[] = 'CompleteBankEnrollment';
-        }
-
-        if ($new_software_release == 1) {
-            $checklist_items[] = 'InstalledNewVersion';
-        }
-
-        // Calculate progress
-        $total_items = count($checklist_items);
-        $completed_items = 0;
-
-        foreach ($checklist_items as $item) {
-            if (isset($client_data[$item]) && $client_data[$item]) {
-                $completed_items++;
-            }
-        }
-
-        $progress_percentage = ($completed_items / $total_items) * 100;
-
-        // Update progress
-        $update_progress_sql = "UPDATE Onboarding SET Progress = ? WHERE ClientID = ?";
-        $stmt = $conn->prepare($update_progress_sql);
-        $stmt->bind_param('ds', $progress_percentage, $client_id);
-        $stmt->execute();
-        $stmt->close();
-    }
+    recalculate_all_client_progress($conn, $new_software_release);
 
     $success_message = "Software release setting updated successfully! Client progress recalculated.";
 }
@@ -539,12 +539,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_system_settings
     $default_ready_to_call = isset($_POST['default_ready_to_call']) ? 1 : 0;
     $auto_assign_techs = isset($_POST['auto_assign_techs']) ? 1 : 0;
     $require_bank_enrollment = isset($_POST['require_bank_enrollment']) ? 1 : 0;
-    
+    $new_software_release = isset($_POST['new_software_release']) ? 1 : 0;
+
+    $previous_new_software_release = (int) ($settings['NewSoftwareRelease'] ?? 0);
+
     // Update or insert settings
     $system_settings = [
         'DefaultReadyToCall' => $default_ready_to_call,
         'AutoAssignTechs' => $auto_assign_techs,
-        'RequireBankEnrollment' => $require_bank_enrollment
+        'RequireBankEnrollment' => $require_bank_enrollment,
+        'NewSoftwareRelease' => $new_software_release
     ];
     
     foreach ($system_settings as $setting_name => $setting_value) {
@@ -571,7 +575,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_system_settings
         }
     }
     
-    $success_message = "System settings updated successfully!";
+    if ($previous_new_software_release !== $new_software_release) {
+        recalculate_all_client_progress($conn, $new_software_release);
+        $success_message = "System settings updated successfully! Software release setting changed and client progress recalculated.";
+    } else {
+        $success_message = "System settings updated successfully!";
+    }
+
+    $settings['NewSoftwareRelease'] = (string) $new_software_release;
 }
 
 // Check for success messages from redirects
@@ -639,31 +650,31 @@ $conn->close();
 
         <?php if ($success_message): ?>
             <div class="success-message">
-                ? <?php echo htmlspecialchars($success_message); ?>
+                ✅ <?php echo htmlspecialchars($success_message); ?>
             </div>
         <?php endif; ?>
 
         <?php if ($error_message): ?>
             <div class="error-message">
-                ? <?php echo htmlspecialchars($error_message); ?>
+                ⚠️ <?php echo htmlspecialchars($error_message); ?>
             </div>
         <?php endif; ?>
 
         <div class="settings-grid">
-            <!-- Software Release Settings -->
+            <!-- System Preferences -->
             <div class="settings-card">
-                <h3><span class="icon" aria-hidden="true">🛠️</span> Software Release</h3>
-                
+                <h3><span class="icon" aria-hidden="true">⚙️</span> System Preferences</h3>
+
                 <div class="info-banner">
-                    <h4>About Software Releases</h4>
-                    <p>When a new version is released, this setting triggers an additional checklist item for all clients. Progress percentages will be recalculated automatically.</p>
+                    <h4>Preferences & Release Controls</h4>
+                    <p>Configure default onboarding behavior and software-release requirements from one place.</p>
                 </div>
 
                 <form method="POST" action="">
                     <div class="toggle-switch">
                         <div>
                             <label for="new_software_release">New Software Release</label>
-                            <div class="description">Enable when a new version of the software is released</div>
+                            <div class="description">Enable when a new version is released; this adds release checklist requirements.</div>
                         </div>
                         <label class="switch">
                             <input type="checkbox" id="new_software_release" name="new_software_release" value="1" <?php echo $new_software_release == 1 ? 'checked' : ''; ?>>
@@ -671,17 +682,6 @@ $conn->close();
                         </label>
                     </div>
 
-                    <button type="submit" name="update_software_release" class="btn-primary">
-                        Update Software Release Setting
-                    </button>
-                </form>
-            </div>
-
-            <!-- System Preferences -->
-            <div class="settings-card">
-                <h3><span class="icon" aria-hidden="true">⚙️</span> System Preferences</h3>
-
-                <form method="POST" action="">
                     <div class="toggle-switch">
                         <div>
                             <label for="default_ready_to_call">Default Ready to Call</label>
@@ -716,7 +716,7 @@ $conn->close();
                     </div>
 
                     <button type="submit" name="update_system_settings" class="btn-primary">
-                        Update System Preferences
+                        Save Preferences
                     </button>
                 </form>
             </div>
@@ -757,7 +757,7 @@ $conn->close();
             </div>
 
             <!-- Year Rollover / Archive -->
-            <div class="settings-card">
+            <div class="settings-card settings-card-wide">
                 <h3><span class="icon" aria-hidden="true">🗂️</span> Year Rollover</h3>
 
                 <div class="warning-banner">
