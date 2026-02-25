@@ -533,13 +533,13 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
 
         <?php if (!empty($success_message)): ?>
             <div class="success-message">
-                ? <?php echo htmlspecialchars($success_message); ?>
+                ✅ <?php echo htmlspecialchars($success_message); ?>
             </div>
         <?php endif; ?>
 
         <?php if (!empty($error_message)): ?>
             <div class="error-message">
-                ? <?php echo htmlspecialchars($error_message); ?>
+                ⚠️ <?php echo htmlspecialchars($error_message); ?>
             </div>
         <?php endif; ?>
 
