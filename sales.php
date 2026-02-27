@@ -27,7 +27,7 @@ $stmt->close();
 
 // Fetch techs with department 2
 $techs = [];
-$techs_sql = "SELECT UserID, FirstName, LastName, Spanish FROM Users WHERE Department = 2";
+$techs_sql = "SELECT UserID, FirstName, LastName, Email, Spanish FROM Users WHERE Department = 2";
 if ($techs_result = $conn->query($techs_sql)) {
     while ($row = $techs_result->fetch_assoc()) {
         $techs[] = $row;
@@ -86,6 +86,66 @@ if ($packages_result) {
 
 // Success message variable
 $success_message = '';
+
+function get_teams_workflow_url(mysqli $conn): string {
+    $setting_name = 'TeamsWorkflowUrl';
+    $setting_stmt = $conn->prepare("SELECT Setting_Value FROM admin_settings WHERE Setting_Name = ? LIMIT 1");
+    if ($setting_stmt) {
+        $setting_stmt->bind_param('s', $setting_name);
+        $setting_stmt->execute();
+        $setting_result = $setting_stmt->get_result();
+        if ($setting_result && $setting_result->num_rows > 0) {
+            $setting_row = $setting_result->fetch_assoc();
+            $setting_stmt->close();
+            return trim((string) ($setting_row['Setting_Value'] ?? ''));
+        }
+        $setting_stmt->close();
+    }
+
+    return trim((string) (getenv('TEAMS_WORKFLOW_URL') ?: ''));
+}
+
+function send_teams_new_client_message(mysqli $conn, array $payload): void {
+    $workflow_url = get_teams_workflow_url($conn);
+    if ($workflow_url === '') {
+        return;
+    }
+
+    $message_body = [
+        'text' => sprintf(
+            "New onboarding client assigned to %s\n\nClient: %s (%s)\nSales Rep: %s\nDate Added: %s",
+            $payload['tech_name'],
+            $payload['client_name'],
+            $payload['client_id'],
+            $payload['sales_rep'],
+            $payload['date_added']
+        ),
+        'techEmail' => $payload['tech_email'],
+        'techName' => $payload['tech_name'],
+        'clientId' => $payload['client_id'],
+    ];
+
+    $json_payload = json_encode($message_body);
+    if ($json_payload === false) {
+        error_log('Unable to encode Teams workflow payload for new client notification.');
+        return;
+    }
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => $json_payload,
+            'timeout' => 4,
+            'ignore_errors' => true,
+        ],
+    ]);
+
+    $result = @file_get_contents($workflow_url, false, $context);
+    if ($result === false) {
+        error_log('Failed to send Teams workflow notification for new onboarding client assignment.');
+    }
+}
 
 // Handle form submission for adding clients
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
@@ -238,6 +298,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_client'])) {
         $notif_stmt->bind_param("ss", $client_id, $assigned_tech);
         $notif_stmt->execute();
         $notif_stmt->close();
+
+        $tech_name = (string) $assigned_tech;
+        $tech_email = '';
+        foreach ($techs as $tech) {
+            if ((string) $tech['UserID'] === (string) $assigned_tech) {
+                $tech_name = trim($tech['FirstName'] . ' ' . $tech['LastName']);
+                $tech_email = trim((string) ($tech['Email'] ?? ''));
+                break;
+            }
+        }
+
+        send_teams_new_client_message($conn, [
+            'tech_name' => $tech_name,
+            'tech_email' => $tech_email,
+            'client_name' => $client_name,
+            'client_id' => $client_id,
+            'sales_rep' => $sales_rep,
+            'date_added' => $date_added,
+        ]);
 
         // Update last assigned tech
         $last_stmt = $conn->prepare("INSERT INTO LastAssignedTech (UserID) VALUES (?)");
